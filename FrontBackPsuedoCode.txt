@@ -1,0 +1,67 @@
+PsuedoCode: FinalTake Sprint 1 Interactions between front and back end
+
+
+
+Create Account:
+	FE: Prompt user for username, email, password, optional profile pic (profile pic sprint 2)
+	FE: confirm password
+	FE: Sprint 2(Make sure username and password don't contain illegal characters, prompt users for new entries if they do.)
+	FE: Initiate request with backend, send username, email, password "Send(CreateAccount, [username], [email], [password])"
+	BE: Process data
+	BE: Check existing records for username, email, make sure no duplicates.
+		IF existing BE: Message front end that ENTRY has duplicate, prompt for new username, or offer to reset password for email.
+		ELSE BE: Create new entry in user table. Message front end success, Validate login.
+			(Sprint 2, send email to user email for 2fa.)
+
+
+Login: 
+	FE: Prompt user for email, password.
+	FE: Send email, password to backend."Send(UserLogin, [email], [password])" (Sprint 2, add encryption)
+	BE: Process data
+	BE: Verify login details
+		IF email not in db: BE: Send message email doesn't exist
+			FE: Prompt user to double check email, 
+		IF Password not in db & email in DB: BE Send message password doesn't match (Sprint 2, begin count of incorrect entries, temporary lockout at 5?)
+			FE: Prompt user to correct password. (Sprint 2, notify user that after x more attempts, user will be temporarily locked out.)\
+		Else: BE: Label current connection as logged in, notify front end.
+			FE: Redirect to user front page.(Sprint 1, Search page)
+
+Search:
+	Fe: Verify that user is logged in
+	Fe: Prompt user to enter details of search
+		Fe: seperate entries: 
+			Title
+			Year of release
+			Tags (clickable list of pre-existing tags)
+			genre (clickable list of pre-existing genres)
+	FE: Send data to back end. "Send(MediaSearch, [Title], [Year], [tagcount], [Tags, comma seperated], [genre]" (N/A for any entries left empty.)
+	BE: Process data
+	BE: Search Database using given qualifiers.
+		IF No matching entries:
+			BE: Send message: no matching media
+			FE: Notify user no matching media
+				FE: Prompt user to adjust search criteria
+				(Sprint 2) FE: Prompt user to Add media to database (After Admin review)
+		Else:
+			BE: send message with comma seperated list of media (Name, Picture, Summary)
+			FE: Process data
+			FE: Display list of Media.
+			FE: Allow user to click on media item
+			FE: send request for specific media page
+			BE: return page.
+
+Interact with Media
+
+	FE: Verify user is logged in
+	FE: Display media page
+	FE: Allow:
+		Click on favorite button (heart?) (Command = "Fave")
+		Rate using 5 stars (Command = "Rating, [how many stars]")
+		Review (Command = "Review, ")
+
+	FE: Send Data to backend "Send([command], [email], [media])"
+	BE: Process Data
+		Sanitize Reviews.
+	BE: Update Database using Data.
+	BE: Report success to front end
+	FE: Display that user action was succesful.
