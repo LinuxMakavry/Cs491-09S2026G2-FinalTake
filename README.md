@@ -11,10 +11,10 @@ https://docs.google.com/document/d/1gknaDwY_yAnbjHSUbM4AaqW4XNb5sO8mFJNR-zJ8-94/
 
 This project is organized as a simple, industry-ready monorepo with a frontend client, backend server, and database resources.
 
-# Instructions on how to run
+# Instructions On How To Run
 (This will be for Visual Studio code, as that is what I use)
 
-1. [IMPORTANT] Ensure you have Node.js installed (You can check by opening the command prompt and typing "node --version". The version will display if you have it, otherwise, download it at https://nodejs.org/en)
+1. [ IMPORTANT ] Ensure you have Node.js installed (You can check by opening the command prompt and typing "node --version". The version will display if you have it, otherwise, download it at https://nodejs.org/en)
 
 2. Open a new terminal the terminal
 
