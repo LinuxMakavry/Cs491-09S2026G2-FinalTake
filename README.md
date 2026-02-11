@@ -20,14 +20,16 @@ This project is organized as a simple, industry-ready monorepo with a frontend c
 
 3. Click that, and select "Command Prompt"
 
-4. Type "cd .\client\" into the terminal
+4. Type "cd client" into the terminal
 (This is assuming you are currently located somewhere like: C:\Users\yourName\Documents\Cs491-09S2026G2-FinalTake>)
 
-5. Type "npm run dev"
+5. Type "npm install" into the terminal
 
-6. Ctrl + left click on "http://localhost:5173/" to visit the site
+6. Type "npm run dev" into the terminal
 
-7. When done, Press Ctrl + C to terminate the process
+7. Ctrl + left click on "http://localhost:5173/" to visit the site
+
+8. When done, Press Ctrl + C to terminate the process
 
 ## Folder Tree
 
