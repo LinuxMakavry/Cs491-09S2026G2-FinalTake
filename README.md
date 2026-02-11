@@ -16,7 +16,7 @@ This project is organized as a simple, industry-ready monorepo with a frontend c
 
 1. [ IMPORTANT ] Ensure you have Node.js installed (You can check by opening the command prompt and typing "node --version". The version will display if you have it, otherwise, download it at https://nodejs.org/en)
 
-2. Open a new terminal the terminal
+2. Open a new terminal
 
 3. On the top right of the terminal, look for the "⌄" symbol, right next to the plus symbol beside "powershell"
 
@@ -31,7 +31,7 @@ This project is organized as a simple, industry-ready monorepo with a frontend c
 
 8. Ctrl + left click on "http://localhost:5173/" to visit the site
 
-9. When done, Press Ctrl + C to terminate the process
+9. When done, Press Ctrl + C in the terminal to terminate the process
 
 ## Folder Tree
 
