@@ -11,6 +11,24 @@ https://docs.google.com/document/d/1gknaDwY_yAnbjHSUbM4AaqW4XNb5sO8mFJNR-zJ8-94/
 
 This project is organized as a simple, industry-ready monorepo with a frontend client, backend server, and database resources.
 
+# Instructions on how to run
+(This will be for Visual Studio code, as that is what I use)
+
+1. Open the terminal
+
+2. On the top right of the terminal, look for the "⌄" symbol, right next to the plus symbol beside "powershell"
+
+3. Click that, and select "Command Prompt"
+
+4. Type "cd .\client\" into the terminal
+(This is assuming you are currently located somewhere like: C:\Users\yourName\Documents\Cs491-09S2026G2-FinalTake>)
+
+5. Type "npm run dev"
+
+6. Ctrl + left click on "http://localhost:5173/" to visit the site
+
+7. When done, Press Ctrl + C to terminate the process
+
 ## Folder Tree
 
 ```text
@@ -57,4 +75,3 @@ finaltake/
    ├─ migrations/             # schema changes (Alembic/etc.)
    ├─ seed/                   # sample data scripts
    └─ schema.sql              # optional initial schema
-
