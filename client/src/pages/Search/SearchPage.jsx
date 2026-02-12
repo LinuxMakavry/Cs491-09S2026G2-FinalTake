@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MediaCard from '../../components/media/MediaCard';
 import './SearchPage.css';
 
@@ -18,6 +19,11 @@ const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('all');
   const [mediaResults, setMediaResults] = useState(mockMediaData);
+  const navigate = useNavigate();
+  const [user] = useState(() => {
+    const stored = localStorage.getItem('user');
+    return stored ? JSON.parse(stored) : null;
+  });
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -43,15 +49,49 @@ const SearchPage = () => {
     setMediaResults(mockMediaData);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
+  const handleHomeClick = () => {
+    navigate('/search');
+  };
+
   return (
     <div className="search-page">
       <header className="search-header">
-        <h1 className="site-title">
-          <span className="star-icon">★</span>
-          FinalTake
-          <span className="star-icon">★</span>
-        </h1>
-        <p className="site-tagline">Share Your Entertainment Experience</p>
+        <div className="header-content">
+          <button 
+            className="home-button"
+            onClick={handleHomeClick}
+            title="Go to Home"
+          >
+            <h1 className="site-title">
+              <span className="star-icon">★</span>
+              FinalTake
+              <span className="star-icon">★</span>
+            </h1>
+            <p className="site-tagline">Share Your Entertainment Experience</p>
+          </button>
+          <div className="header-actions">
+            {user ? (
+              <>
+                <span className="user-email">{user.email}</span>
+                <button className="btn btn-secondary" onClick={handleLogout}>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <button 
+                className="btn btn-primary" 
+                onClick={() => navigate('/login')}
+              >
+                Login
+              </button>
+            )}
+          </div>
+        </div>
       </header>
 
       <div className="search-container">

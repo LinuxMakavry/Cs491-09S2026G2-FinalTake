@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import SearchPage from '../pages/Search/SearchPage';
 import MediaDetailsPage from '../pages/MediaDetails/MediaDetailsPage';
+import LoginPage from '../pages/Login/LoginPage';
 import './App.css';
 
 function App() {
@@ -10,6 +11,9 @@ function App() {
         <Routes>
           {/* Default route redirects to search */}
           <Route path="/" element={<Navigate to="/search" replace />} />
+          
+          {/* Login page */}
+          <Route path="/login" element={<LoginPage />} />
           
           {/* Search page - main landing */}
           <Route path="/search" element={<SearchPage />} />

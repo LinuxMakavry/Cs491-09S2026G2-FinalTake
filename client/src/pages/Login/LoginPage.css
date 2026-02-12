@@ -1,0 +1,136 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0a1628 0%, #1a2840 100%);
+  padding: 20px;
+}
+
+.login-container {
+  background: rgba(26, 40, 64, 0.6);
+  border-radius: 8px;
+  border: 1px solid #7B86B5;
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.home-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.home-button:hover {
+  transform: scale(1.05);
+}
+
+.home-button:active {
+  transform: scale(0.98);
+}
+
+.login-header .site-title {
+  color: var(--title-yellow);
+  font-size: 48px;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.login-header .star-icon {
+  color: var(--star-gold);
+  margin: 0 10px;
+  font-size: 40px;
+}
+
+.login-header .site-tagline {
+  color: var(--text-powder-blue);
+  font-size: 18px;
+  font-style: italic;
+  margin: 0;
+}
+
+.login-form h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: var(--title-yellow);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-powder-blue);
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--element-lavender);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-powder-blue);
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s, background-color 0.3s;
+  box-sizing: border-box;
+}
+
+.form-input::placeholder {
+  color: var(--element-lavender);
+  opacity: 0.7;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--content-tangerine);
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
+}
+
+.error-message {
+  background-color: rgba(255, 140, 66, 0.2);
+  color: #FF8C42;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border: 1px solid var(--content-tangerine);
+}
+
+.btn-full {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 20px;
+  color: var(--element-lavender);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 30px 20px;
+  }
+
+  .login-header .site-title {
+    font-size: 24px;
+  }
+}
