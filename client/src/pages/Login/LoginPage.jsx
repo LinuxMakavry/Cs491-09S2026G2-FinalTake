@@ -36,22 +36,22 @@ const LoginPage = () => {
 
   return (
     <div className="login-page">
-      <div className="login-container">
-        <div className="login-header">
-          <button 
-            className="home-button"
-            onClick={handleHomeClick}
-            title="Go to Home"
-          >
-            <h1 className="site-title">
-              <span className="star-icon">★</span>
-              FinalTake
-              <span className="star-icon">★</span>
-            </h1>
-          </button>
+      <header className="login-header">
+        <button 
+          className="home-button"
+          onClick={handleHomeClick}
+          title="Go to Home"
+        >
+          <h1 className="site-title">
+            <span className="star-icon">★</span>
+            FinalTake
+            <span className="star-icon">★</span>
+          </h1>
           <p className="site-tagline">Share Your Entertainment Experience</p>
-        </div>
+        </button>
+      </header>
 
+      <div className="login-container">
         <form className="login-form" onSubmit={handleLogin}>
           <h2>Login</h2>
           
