@@ -23,4 +23,4 @@ Thumbs.db
 npm-debug.log*
 
 # Vite
-client/.vite/
+client/.vite/client/node_modules/
