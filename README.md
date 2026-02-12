@@ -33,56 +33,6 @@ This project is organized as a simple, industry-ready monorepo with a frontend c
 
 9. When done, Press Ctrl + C in the terminal to terminate the process
 
-## Folder Tree
-
-```text
-finaltake/
-├─ README.md
-├─ .gitignore
-├─ .env.example
-├─ docker-compose.yml
-├─ .github/
-│  └─ workflows/
-│     └─ ci.yml
-│
-├─ docs/
-│  ├─ overview.md
-│  ├─ architecture.md
-│  ├─ api.md
-│  └─ database.md
-│
-├─ client/
-│  ├─ package.json
-│  ├─ package-lock.json
-│  ├─ public/
-│  └─ src/
-│     ├─ app/
-│     ├─ pages/
-│     ├─ components/
-│     ├─ services/
-│     ├─ state/
-│     ├─ styles/
-│     └─ utils/
-│
-├─ server/
-│  ├─ requirements.txt
-│  └─ app/
-│     ├─ __init__.py
-│     ├─ config.py
-│     ├─ routes/
-│     ├─ services/
-│     ├─ models/
-│     ├─ db/
-│     ├─ realtime/
-│     └─ tests/
-│
-└─ database/
-   ├─ migrations/
-   ├─ seed/
-   └─ schema.sql
-   
-```
-
 ## Linting
 
 ```text
