@@ -120,6 +120,40 @@
   margin-top: 10px;
 }
 
+.signup-section {
+  text-align: center;
+  max-width: 400px;
+  margin: 15px auto 0;
+  padding: 0 20px;
+}
+
+.signup-text {
+  color: var(--text-powder-blue);
+  font-size: 14px;
+  margin: 0;
+}
+
+.signup-link {
+  background: none;
+  border: none;
+  color: var(--content-tangerine);
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+  font-size: 14px;
+}
+
+.signup-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.signup-link:active {
+  opacity: 0.6;
+}
+
 .login-footer {
   text-align: center;
   margin-top: 20px;

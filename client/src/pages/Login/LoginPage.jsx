@@ -86,6 +86,10 @@ const LoginPage = () => {
           </button>
         </form>
 
+        <div className="signup-section">
+          <p className="signup-text">Don't have an account? <button className="signup-link">Sign up</button></p>
+        </div>
+
         <p className="login-footer">
           Note: This is a basic login without backend. Any email/password will work for testing.
         </p>
