@@ -53,29 +53,112 @@ finaltake/
 │
 ├─ client/
 │  ├─ package.json
+│  ├─ package-lock.json
 │  ├─ public/
 │  └─ src/
-│     ├─ app/                 # routing + app bootstrap
-│     ├─ pages/               # screens (Login, Search, Media, Profile...)
-│     ├─ components/          # reusable UI pieces (stars, cards, modals)
-│     ├─ services/            # API + realtime client (fetch/websocket)
-│     ├─ state/               # global state (auth user, feed, tags)
-│     ├─ styles/              # global CSS/theme
-│     └─ utils/               # helpers (format dates, debounce, etc.)
+│     ├─ app/
+│     ├─ pages/
+│     ├─ components/
+│     ├─ services/
+│     ├─ state/
+│     ├─ styles/
+│     └─ utils/
 │
 ├─ server/
 │  ├─ requirements.txt
 │  └─ app/
-│     ├─ __init__.py          # create app + register routes
-│     ├─ config.py            # env config + settings
-│     ├─ routes/              # Controllers (REST endpoints)
-│     ├─ services/            # Business logic (use cases)
-│     ├─ models/              # Data models (User, Media, Review...)
-│     ├─ db/                  # DB access + migrations/seed
-│     ├─ realtime/            # websocket/SSE for friend feed
-│     └─ tests/               # unit + integration tests
+│     ├─ __init__.py
+│     ├─ config.py
+│     ├─ routes/
+│     ├─ services/
+│     ├─ models/
+│     ├─ db/
+│     ├─ realtime/
+│     └─ tests/
 │
 └─ database/
-   ├─ migrations/             # schema changes (Alembic/etc.)
-   ├─ seed/                   # sample data scripts
-   └─ schema.sql              # optional initial schema
+   ├─ migrations/
+   ├─ seed/
+   └─ schema.sql
+   
+```
+
+## Linting
+
+```text
+cd client
+npm run lint
+```
+
+## Continous Integration
+This project uses GitHub Actions located in the ci.yaml file
+in .github/workflows/ci.yml
+
+## What CI Currently Does
+
+# Client job
+- Installs dependencies
+
+- Runs ESLint
+
+- Optionally runs tests/build
+
+# Server Job
+- Installs Python dependencies
+
+- Runs Ruff lint
+
+- Runs Pytest (when tests exist)
+
+
+***Note: Server CI may be partially skipped until backend implementation is complete.***
+
+## Docker setup (In Progress)
+
+## Project Structure
+```text
+finaltake/
+├─ README.md
+├─ .gitignore
+├─ .env.example
+├─ docker-compose.yml
+├─ .github/
+│  └─ workflows/
+│     └─ ci.yml
+│
+├─ docs/
+│  ├─ overview.md
+│  ├─ architecture.md
+│  ├─ api.md
+│  └─ database.md
+│
+├─ client/
+│  ├─ package.json
+│  ├─ package-lock.json
+│  ├─ public/
+│  └─ src/
+│     ├─ app/
+│     ├─ pages/
+│     ├─ components/
+│     ├─ services/
+│     ├─ state/
+│     ├─ styles/
+│     └─ utils/
+│
+├─ server/
+│  ├─ requirements.txt
+│  └─ app/
+│     ├─ __init__.py
+│     ├─ config.py
+│     ├─ routes/
+│     ├─ services/
+│     ├─ models/
+│     ├─ db/
+│     ├─ realtime/
+│     └─ tests/
+│
+└─ database/
+   ├─ migrations/
+   ├─ seed/
+   └─ schema.sql
+```
