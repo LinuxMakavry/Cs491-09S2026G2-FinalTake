@@ -1,0 +1,8 @@
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 5173
+# Replace with your actual entrypoint (flask/fastapi/etc)
+CMD ["python","-m","app"]
