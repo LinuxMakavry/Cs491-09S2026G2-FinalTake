@@ -156,11 +156,6 @@ const SearchPage = () => {
           </div>
         )}
       </div>
-
-      <div className="dev-notice">
-        <p>🚧 <strong>Dev D - Frontend Media Pages:</strong> Search page with placeholder data</p>
-        <p>Waiting for Dev C to implement backend media endpoints</p>
-      </div>
     </div>
   );
 };

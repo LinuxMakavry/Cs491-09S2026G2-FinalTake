@@ -219,11 +219,6 @@ const MediaDetailsPage = () => {
           </section>
         </div>
       </div>
-
-      <div className="dev-notice">
-        <p>🚧 <strong>Dev D:</strong> Media details with mock data</p>
-        <p>Waiting for backend endpoints</p>
-      </div>
     </div>
   );
 };
