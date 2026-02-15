@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MediaCard from '../../components/media/MediaCard';
+import { ThemeContext } from '../../context/ThemeContext';
 import './SearchPage.css';
 
 // Mock data - will be replaced with API calls once backend is ready
@@ -20,6 +21,7 @@ const SearchPage = () => {
   const [selectedType, setSelectedType] = useState('all');
   const [mediaResults, setMediaResults] = useState(mockMediaData);
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const [user] = useState(() => {
     const stored = localStorage.getItem('user');
     return stored ? JSON.parse(stored) : null;
@@ -75,6 +77,13 @@ const SearchPage = () => {
             <p className="site-tagline">Share Your Entertainment Experience</p>
           </button>
           <div className="header-actions">
+            <button 
+              className="btn btn-theme" 
+              onClick={toggleTheme}
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
             {user ? (
               <>
                 <span className="user-email">{user.email}</span>

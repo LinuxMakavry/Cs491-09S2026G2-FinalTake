@@ -1,6 +1,8 @@
 .search-page {
   min-height: 100vh;
   padding: 20px;
+  background: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .search-header {
@@ -46,7 +48,7 @@
 }
 
 .user-email {
-  color: var(--text-powder-blue);
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
 }
@@ -66,7 +68,7 @@
 }
 
 .site-tagline {
-  color: var(--text-powder-blue);
+  color: var(--text-secondary);
   font-size: 18px;
   font-style: italic;
 }
@@ -78,10 +80,11 @@
 }
 
 .search-form {
-  background: rgba(26, 40, 64, 0.6);
+  background: var(--card-bg);
   padding: 30px;
   border-radius: 12px;
   border: 1px solid var(--element-lavender);
+  transition: background-color 0.3s ease;
 }
 
 .search-input-group {
@@ -94,12 +97,12 @@
   flex: 1;
   padding: 12px 20px;
   font-size: 16px;
-  background: rgba(10, 22, 40, 0.8);
+  background: var(--bg-secondary);
   border: 2px solid var(--system-indigo);
   border-radius: 8px;
-  color: var(--text-powder-blue);
+  color: var(--text-primary);
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
 .search-input:focus {
@@ -107,19 +110,21 @@
 }
 
 .search-input::placeholder {
-  color: rgba(184, 212, 232, 0.5);
+  color: var(--text-secondary);
+  opacity: 0.6;
 }
 
 .type-filter {
   padding: 12px 20px;
   font-size: 16px;
-  background: rgba(10, 22, 40, 0.8);
+  background: var(--bg-secondary);
   border: 2px solid var(--system-indigo);
   border-radius: 8px;
-  color: var(--text-powder-blue);
+  color: var(--text-primary);
   cursor: pointer;
   outline: none;
   min-width: 150px;
+  transition: background-color 0.3s ease;
 }
 
 .type-filter:focus {
@@ -160,13 +165,14 @@
 .no-results {
   text-align: center;
   padding: 60px 20px;
-  background: rgba(26, 40, 64, 0.4);
+  background: var(--card-bg);
   border-radius: 12px;
   border: 1px dashed var(--system-indigo);
+  transition: background-color 0.3s ease;
 }
 
 .no-results p {
-  color: var(--text-powder-blue);
+  color: var(--text-secondary);
   font-size: 18px;
   margin-bottom: 20px;
 }
