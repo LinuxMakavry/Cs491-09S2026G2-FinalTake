@@ -95,6 +95,12 @@ const LoginPage = () => {
           <button type="submit" className="btn btn-primary btn-full">
             Login
           </button>
+
+          <div className="forgot-password-section">
+            <button type="button" className="forgot-password-link">
+              Forgot your password?
+            </button>
+          </div>
         </form>
 
         <div className="signup-section">
@@ -102,7 +108,7 @@ const LoginPage = () => {
         </div>
 
         <p className="login-footer">
-          Note: This is a basic login without backend. Any email/password will work for testing.
+          Note: This is a basic login without backend. Any email/password will work for testing as long as the email contains '@' i.e. test@test.com
         </p>
       </div>
     </div>
