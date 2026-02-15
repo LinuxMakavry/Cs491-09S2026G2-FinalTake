@@ -153,6 +153,31 @@
   margin-top: 10px;
 }
 
+.forgot-password-section {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.forgot-password-link {
+  background: none;
+  border: none;
+  color: var(--element-lavender);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.forgot-password-link:hover {
+  color: var(--content-tangerine);
+  text-decoration: underline;
+}
+
+.forgot-password-link:active {
+  opacity: 0.7;
+}
+
 .signup-section {
   text-align: center;
   max-width: 400px;
