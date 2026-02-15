@@ -1,12 +1,14 @@
 .media-details-page {
   min-height: 100vh;
   padding: 20px;
+  background: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .back-button {
   background: transparent;
   border: 2px solid var(--element-lavender);
-  color: var(--text-powder-blue);
+  color: var(--text-primary);
   padding: 10px 20px;
   border-radius: 8px;
   font-size: 16px;
@@ -31,10 +33,11 @@
   grid-template-columns: 350px 1fr;
   gap: 40px;
   margin-bottom: 40px;
-  background: rgba(26, 40, 64, 0.6);
+  background: var(--card-bg);
   padding: 30px;
   border-radius: 12px;
   border: 1px solid var(--element-lavender);
+  transition: background-color 0.3s ease;
 }
 
 .media-image-large {
@@ -42,7 +45,7 @@
   height: 500px;
   border-radius: 8px;
   overflow: hidden;
-  background: rgba(10, 22, 40, 0.8);
+  background: var(--bg-secondary);
 }
 
 .placeholder-image-large {
@@ -51,7 +54,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a2840 0%, #2a3850 100%);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
 }
 
 .placeholder-icon {
@@ -88,7 +91,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--text-powder-blue);
+  color: var(--text-secondary);
   font-size: 16px;
 }
 
@@ -137,16 +140,36 @@
 }
 
 .genre-tag {
-  background: rgba(123, 134, 181, 0.3);
-  color: var(--text-powder-blue);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 14px;
   border: 1px solid var(--element-lavender);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .favorite-button {
-  di.favorite-button.favorited {
+  background: transparent;
+  border: 2px solid var(--element-lavender);
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+}
+
+.favorite-button:hover {
+  background: var(--element-lavender);
+  color: var(--white);
+}
+
+.favorite-button.favorited {
   background: var(--element-lavender);
   color: var(--white);
   border-color: var(--title-yellow);
@@ -164,10 +187,11 @@
 
 .description-section,
 .reviews-section {
-  background: rgba(26, 40, 64, 0.6);
+  background: var(--card-bg);
   padding: 30px;
   border-radius: 12px;
   border: 1px solid var(--element-lavender);
+  transition: background-color 0.3s ease;
 }
 
 .description-section h2,
@@ -178,7 +202,7 @@
 }
 
 .description-section p {
-  color: var(--text-powder-blue);
+  color: var(--text-secondary);
   font-size: 16px;
   line-height: 1.8;
 }
@@ -186,13 +210,14 @@
 .reviews-placeholder {
   text-align: center;
   padding: 40px 20px;
-  background: rgba(10, 22, 40, 0.4);
+  background: var(--bg-secondary);
   border-radius: 8px;
   border: 1px dashed var(--system-indigo);
+  transition: background-color 0.3s ease;
 }
 
 .reviews-placeholder p {
-  color: var(--text-powder-blue);
+  color: var(--text-secondary);
   font-size: 16px;
   margin-bottom: 20px;
 }
