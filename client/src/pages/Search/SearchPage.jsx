@@ -82,7 +82,7 @@ const SearchPage = () => {
               onClick={toggleTheme}
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             >
-              {theme === 'light' ? '🌙' : '☀️'}
+              {theme === 'light' ? '☽' : '☀'}
             </button>
             {user ? (
               <>
