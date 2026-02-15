@@ -1,10 +1,17 @@
 /* FinalTake Color Palette */
 :root {
-  /* Primary Colors */
-  --background-dark: linear-gradient(135deg, #0a1628 0%, #1a2840 100%);
+  /* Light Mode Colors */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F5F5;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --border-color: #E5E5E5;
+  --card-bg: #FFFFFF;
+  --header-bg: #F8F8F8;
+  
+  /* Accent Colors (same for both themes) */
   --title-yellow: #F4E6C3;
   --star-gold: #FFD700;
-  --text-powder-blue: #B8D4E8;
   --element-lavender: #7B86B5;
   --content-tangerine: #FF8C42;
   --system-indigo: #5C6B9A;
@@ -14,6 +21,17 @@
   --black: #000000;
   --gray-light: #E5E5E5;
   --gray-dark: #333333;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+  --bg-primary: #0a1628;
+  --bg-secondary: #1a2840;
+  --text-primary: #B8D4E8;
+  --text-secondary: #9DB4D4;
+  --border-color: #2a3850;
+  --card-bg: #1a2840;
+  --header-bg: #0f1a2e;
 }
 
 * {
@@ -28,9 +46,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #0a1628 0%, #1a2840 100%);
-  color: var(--text-powder-blue);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 code {
@@ -70,7 +89,7 @@ code {
 
 .btn-secondary {
   background-color: transparent;
-  color: var(--text-powder-blue);
+  color: var(--text-primary);
   border: 2px solid var(--element-lavender);
 }
 
@@ -78,3 +97,15 @@ code {
   background-color: var(--element-lavender);
   color: var(--white);
 }
+
+.btn-theme {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 2px solid var(--element-lavender);
+  padding: 8px 12px;
+  font-size: 18px;
+}
+
+.btn-theme:hover {
+  background-color: var(--element-lavender);
+  transform: translateY(-2px);
