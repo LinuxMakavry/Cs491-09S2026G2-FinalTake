@@ -1,6 +1,8 @@
 .login-page {
   min-height: 100vh;
   padding: 20px;
+  background: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .login-header {
@@ -40,7 +42,7 @@
 }
 
 .login-header .site-tagline {
-  color: var(--text-powder-blue);
+  color: var(--text-secondary);
   font-size: 18px;
   font-style: italic;
   margin: 10px 0 0 0;
@@ -53,12 +55,13 @@
 }
 
 .login-form {
-  background: rgba(26, 40, 64, 0.6);
+  background: var(--card-bg);
   padding: 30px;
   border-radius: 12px;
   border: 1px solid var(--element-lavender);
   max-width: 400px;
   margin: 0 auto;
+  transition: background-color 0.3s ease;
 }
 
 .login-form h2 {
@@ -76,7 +79,7 @@
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: var(--text-powder-blue);
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 14px;
 }
@@ -85,8 +88,8 @@
   width: 100%;
   padding: 12px;
   border: 1px solid var(--element-lavender);
-  background-color: rgba(255, 255, 255, 0.1);
-  color: var(--text-powder-blue);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   border-radius: 4px;
   font-size: 14px;
   transition: border-color 0.3s, background-color 0.3s;
@@ -97,7 +100,6 @@
   color: var(--element-lavender);
   opacity: 0.7;
 }
-
 .form-input:focus {
   outline: none;
   border-color: var(--content-tangerine);
