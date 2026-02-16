@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import '../styles/MediaCard.css';
+import '../../styles/MediaCard.css';
 
 const MediaCard = ({ id, title, type, rating, imageUrl }) => {
   const navigate = useNavigate();
