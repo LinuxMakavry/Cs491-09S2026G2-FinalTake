@@ -2,7 +2,7 @@ import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MediaCard from '../../components/media/MediaCard';
 import { ThemeContext } from '../../context/ThemeContext';
-import './SearchPage.css';
+import '../../styles/SearchPage.css';
 
 // Mock data - will be replaced with API calls once backend is ready
 const mockMediaData = [
