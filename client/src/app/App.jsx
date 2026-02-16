@@ -3,7 +3,7 @@ import SearchPage from '../pages/Search/SearchPage';
 import MediaDetailsPage from '../pages/MediaDetails/MediaDetailsPage';
 import LoginPage from '../pages/Login/LoginPage';
 import { ThemeProvider } from '../context/ThemeContext';
-import './App.css';
+import '../styles/App.css';
 
 function App() {
   return (
