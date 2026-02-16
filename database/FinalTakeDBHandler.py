@@ -57,7 +57,7 @@ class DBHandler:
 			with connect(
 				host="localhost",
 				user="root",
-				password="P4ss",
+				password="P4ss", #replace P4ss with the password you use for your local server
 				database="FinalTakeDB"
 				) as con:
 			with con.cursor as cur:
@@ -86,6 +86,15 @@ class DBHandler:
       	except Error as e:
       		print(e)
     	con.close()
+
+
+
+
+
+
+
+
+
 
 
 

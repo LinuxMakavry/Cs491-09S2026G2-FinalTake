@@ -1,0 +1,4 @@
+README:
+When testing backend/Databse make sure that you have done the following:
+	Replace the password in the handler with the password that you've assigned on your local mysql server
+	Initiate your mysql server
