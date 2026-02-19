@@ -4,7 +4,6 @@ Capstone Project for CSUF computers science. Social media/media reviewing app. F
 Architecture/Design Docs:
 https://docs.google.com/document/d/1gknaDwY_yAnbjHSUbM4AaqW4XNb5sO8mFJNR-zJ8-94/edit?usp=sharing
 
-
 ## File Structure
 
 # FinalTake Repository Structure
