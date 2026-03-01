@@ -1,5 +1,10 @@
-import "@testing-library/jest-dom/vitest";
+import "@testing-library/jest-dom";
+import { afterEach } from "vitest";
+import { cleanup } from "@testing-library/react";
 
+afterEach(() => {
+  cleanup();
+});
 /*
 SOURCES / TEMPLATES USED:
 - Testing Library jest-dom docs: `@testing-library/jest-dom` matchers
