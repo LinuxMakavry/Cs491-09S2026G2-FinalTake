@@ -11,27 +11,71 @@ https://docs.google.com/document/d/1gknaDwY_yAnbjHSUbM4AaqW4XNb5sO8mFJNR-zJ8-94/
 
 This project is organized as a simple, industry-ready monorepo with a frontend client, backend server, and database resources.
 
-# Instructions On How To Run
-(This will be for Visual Studio code, as that is what I use)
+# Getting Started
 
-1. [ IMPORTANT ] Ensure you have Node.js installed (You can check by opening the command prompt and typing "node --version". The version will display if you have it, otherwise, download it at https://nodejs.org/en)
+## Prerequisites
+1. **Node.js** v20+ - verify with `node --version` (download from https://nodejs.org/)
+2. **Python** v3.10+ - verify with `python --version` (download from https://www.python.org/)
+3. **TMDB API Key** (sign up at https://www.themoviedb.org/settings/api)
 
-2. Open a new terminal
+## Instructions to Run
 
-3. On the top right of the terminal, look for the "⌄" symbol, right next to the plus symbol beside "powershell"
+### Backend Setup (Terminal 1)
 
-4. Click that, and select "Command Prompt"
+1. Open PowerShell in the project root directory
 
-5. Type "cd client" into the terminal
-(This is assuming you are currently located somewhere like: C:\Users\yourName\Documents\Cs491-09S2026G2-FinalTake>)
+2. Create and activate virtual environment:
+   ```powershell
+   python -m venv venv
+   .\venv\Scripts\Activate.ps1
+   ```
+   (You should see `(venv)` at the start of your terminal prompt)
 
-6. Type "npm install" into the terminal
+3. Navigate to the server directory:
+   ```powershell
+   cd server
+   ```
 
-7. Type "npm run dev" into the terminal
+4. Install Python dependencies:
+   ```powershell
+   pip install -r requirements.txt
+   ```
 
-8. Ctrl + left click on "http://localhost:5173/" to visit the site
+5. Create a `.env` file in the `server/` directory and add:
+   ```
+   TMDB_API_KEY=your_api_key_here
+   FLASK_DEBUG=True
+   ```
 
-9. When done, Press Ctrl + C in the terminal to terminate the process
+6. Run the backend server:
+   ```powershell
+   python run.py
+   ```
+   The server starts on `http://localhost:5000`
+
+### Frontend Setup (Terminal 2)
+
+1. Open a new PowerShell terminal in the project root directory
+
+2. Navigate to the client directory:
+   ```powershell
+   cd client
+   ```
+
+3. Install Node dependencies:
+   ```powershell
+   npm install
+   ```
+
+4. Start the development server:
+   ```powershell
+   npm run dev
+   ```
+   The frontend starts on `http://localhost:5173`
+
+5. Ctrl + click on `http://localhost:5173/` to open the site in your browser
+
+6. When done, press `Ctrl + C` in each terminal to stop the servers
 
 ## Linting
 
