@@ -21,7 +21,7 @@ function App() {
             <Route path="/search" element={<SearchPage />} />
             
             {/* Media details page */}
-            <Route path="/media/:id" element={<MediaDetailsPage />} />
+            <Route path="/media/:type/:id" element={<MediaDetailsPage />} />
             
             {/* Catch-all route */}
             <Route path="*" element={<Navigate to="/search" replace />} />
