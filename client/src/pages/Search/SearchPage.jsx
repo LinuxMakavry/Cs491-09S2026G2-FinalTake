@@ -1,25 +1,19 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MediaCard from '../../components/media/MediaCard';
 import { ThemeContext } from '../../context/ThemeContext';
 import '../../styles/SearchPage.css';
 
-// Mock data - will be replaced with API calls once backend is ready
-const mockMediaData = [
-  { id: 1, title: "The Matrix", type: "movie", rating: 4.5, imageUrl: null },
-  { id: 2, title: "Dune", type: "book", rating: 4.8, imageUrl: null },
-  { id: 3, title: "The Last of Us", type: "game", rating: 5.0, imageUrl: null },
-  { id: 4, title: "Breaking Bad", type: "tv", rating: 4.9, imageUrl: null },
-  { id: 5, title: "Inception", type: "movie", rating: 4.7, imageUrl: null },
-  { id: 6, title: "1984", type: "book", rating: 4.6, imageUrl: null },
-  { id: 7, title: "God of War", type: "game", rating: 4.8, imageUrl: null },
-  { id: 8, title: "Stranger Things", type: "tv", rating: 4.5, imageUrl: null },
-];
-
 const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('all');
-  const [mediaResults, setMediaResults] = useState(mockMediaData);
+  const [mediaResults, setMediaResults] = useState([]);
+  const [trendingMovies, setTrendingMovies] = useState([]);
+  const [trendingShows, setTrendingShows] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isTrendingLoading, setIsTrendingLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false);
   const navigate = useNavigate();
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [user] = useState(() => {
@@ -27,28 +21,60 @@ const SearchPage = () => {
     return stored ? JSON.parse(stored) : null;
   });
 
-  const handleSearch = (e) => {
+  // Fetch trending on mount
+  useEffect(() => {
+    const fetchTrending = async () => {
+      setIsTrendingLoading(true);
+      try {
+        const [movies, shows] = await Promise.all([
+          fetch('/api/trending?type=movie').then(r => r.json()),
+          fetch('/api/trending?type=tv').then(r => r.json()),
+        ]);
+        setTrendingMovies(movies.results || []);
+        setTrendingShows(shows.results || []);
+      } catch {
+        setTrendingMovies([]);
+        setTrendingShows([]);
+      } finally {
+        setIsTrendingLoading(false);
+      }
+    };
+    fetchTrending();
+  }, []);
+
+  const handleSearch = async (e) => {
     e.preventDefault();
-    // Filter mock data based on search query and type
-    let filtered = mockMediaData;
+    if (!searchQuery.trim()) return;
 
-    if (searchQuery) {
-      filtered = filtered.filter(media =>
-        media.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+    setIsLoading(true);
+    setError(null);
+    setHasSearched(true);
+
+    try {
+      const params = new URLSearchParams({ query: searchQuery.trim() });
+      if (selectedType !== 'all') params.append('type', selectedType);
+
+      const res = await fetch(`/api/search?${params}`);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || `Server error ${res.status}`);
+      }
+      const data = await res.json();
+      setMediaResults(data.results || []);
+    } catch (err) {
+      setError(err.message);
+      setMediaResults([]);
+    } finally {
+      setIsLoading(false);
     }
-
-    if (selectedType !== 'all') {
-      filtered = filtered.filter(media => media.type === selectedType);
-    }
-
-    setMediaResults(filtered);
   };
 
   const handleReset = () => {
     setSearchQuery('');
     setSelectedType('all');
-    setMediaResults(mockMediaData);
+    setMediaResults([]);
+    setHasSearched(false);
+    setError(null);
   };
 
   const handleLogout = () => {
@@ -121,8 +147,6 @@ const SearchPage = () => {
               <option value="all">All Types</option>
               <option value="movie">Movies</option>
               <option value="tv">TV Shows</option>
-              <option value="book">Books</option>
-              <option value="game">Games</option>
             </select>
           </div>
           <div className="search-buttons">
@@ -135,34 +159,81 @@ const SearchPage = () => {
       </div>
 
       <div className="results-container">
-        <div className="results-header">
-          <h2>
-            {mediaResults.length === mockMediaData.length
-              ? 'Browse Media'
-              : `Search Results (${mediaResults.length})`}
-          </h2>
-        </div>
+        {(isLoading || isTrendingLoading) && (
+          <div className="loading-state">
+            <p>{isLoading ? 'Searching TMDB...' : 'Loading trending...'}</p>
+          </div>
+        )}
 
-        {mediaResults.length > 0 ? (
-          <div className="media-grid">
-            {mediaResults.map((media) => (
-              <MediaCard
-                key={media.id}
-                id={media.id}
-                title={media.title}
-                type={media.type}
-                rating={media.rating}
-                imageUrl={media.imageUrl}
-              />
-            ))}
+        {error && (
+          <div className="error-state">
+            <p>Error: {error}</p>
           </div>
-        ) : (
-          <div className="no-results">
-            <p>No media found matching your search.</p>
-            <button className="btn btn-secondary" onClick={handleReset}>
-              Clear Filters
-            </button>
-          </div>
+        )}
+
+        {!isLoading && !isTrendingLoading && !error && (
+          hasSearched ? (
+            <>
+              <div className="results-header">
+                <h2>Search Results ({mediaResults.length})</h2>
+              </div>
+              {mediaResults.length > 0 ? (
+                <div className="media-grid">
+                  {mediaResults.map((media) => (
+                    <MediaCard
+                      key={`${media.type}-${media.id}`}
+                      id={media.id}
+                      title={media.title}
+                      type={media.type}
+                      rating={media.rating}
+                      imageUrl={media.imageUrl}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="no-results">
+                  <p>No media found matching your search.</p>
+                  <button className="btn btn-secondary" onClick={handleReset}>
+                    Clear Filters
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="results-header">
+                <h2>Trending Movies</h2>
+              </div>
+              <div className="media-grid">
+                {trendingMovies.map((media) => (
+                  <MediaCard
+                    key={`movie-${media.id}`}
+                    id={media.id}
+                    title={media.title}
+                    type={media.type}
+                    rating={media.rating}
+                    imageUrl={media.imageUrl}
+                  />
+                ))}
+              </div>
+
+              <div className="results-header">
+                <h2>Trending TV Shows</h2>
+              </div>
+              <div className="media-grid">
+                {trendingShows.map((media) => (
+                  <MediaCard
+                    key={`tv-${media.id}`}
+                    id={media.id}
+                    title={media.title}
+                    type={media.type}
+                    rating={media.rating}
+                    imageUrl={media.imageUrl}
+                  />
+                ))}
+              </div>
+            </>
+          )
         )}
       </div>
     </div>
