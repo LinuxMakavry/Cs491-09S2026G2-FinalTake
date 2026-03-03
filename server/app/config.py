@@ -1,0 +1,13 @@
+import os
+from dotenv import load_dotenv
+
+# Load .env from the server directory
+basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+load_dotenv(os.path.join(basedir, '.env'))
+
+
+class Config:
+    TMDB_API_KEY = os.getenv('TMDB_API_KEY', '')
+    TMDB_BASE_URL = 'https://api.themoviedb.org/3'
+    TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500'
+    DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() in ('1', 'true')
