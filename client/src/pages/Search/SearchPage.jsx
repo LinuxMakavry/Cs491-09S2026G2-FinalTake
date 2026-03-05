@@ -10,6 +10,7 @@ const SearchPage = () => {
   const [mediaResults, setMediaResults] = useState([]);
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [trendingShows, setTrendingShows] = useState([]);
+  const [trendingGames, setTrendingGames] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isTrendingLoading, setIsTrendingLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,15 +27,14 @@ const SearchPage = () => {
     const fetchTrending = async () => {
       setIsTrendingLoading(true);
       try {
-        const [movies, shows] = await Promise.all([
-          fetch('/api/trending?type=movie').then(r => r.json()),
-          fetch('/api/trending?type=tv').then(r => r.json()),
-        ]);
-        setTrendingMovies(movies.results || []);
-        setTrendingShows(shows.results || []);
+        const response = await fetch('/api/trending-all').then(r => r.json());
+        setTrendingMovies(response.movies || []);
+        setTrendingShows(response.shows || []);
+        setTrendingGames(response.games || []);
       } catch {
         setTrendingMovies([]);
         setTrendingShows([]);
+        setTrendingGames([]);
       } finally {
         setIsTrendingLoading(false);
       }
@@ -147,6 +147,7 @@ const SearchPage = () => {
               <option value="all">All Types</option>
               <option value="movie">Movies</option>
               <option value="tv">TV Shows</option>
+              <option value="game">Games</option>
             </select>
           </div>
           <div className="search-buttons">
@@ -224,6 +225,22 @@ const SearchPage = () => {
                 {trendingShows.map((media) => (
                   <MediaCard
                     key={`tv-${media.id}`}
+                    id={media.id}
+                    title={media.title}
+                    type={media.type}
+                    rating={media.rating}
+                    imageUrl={media.imageUrl}
+                  />
+                ))}
+              </div>
+
+              <div className="results-header">
+                <h2>Trending Games</h2>
+              </div>
+              <div className="media-grid">
+                {trendingGames.map((media) => (
+                  <MediaCard
+                    key={`game-${media.id}`}
                     id={media.id}
                     title={media.title}
                     type={media.type}
