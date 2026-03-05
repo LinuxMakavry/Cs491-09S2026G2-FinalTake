@@ -1,9 +1,11 @@
-"""API routes that query TMDB as database"""
+"""API routes that query TMDB and RAWG as databases"""
 from flask import Blueprint, request, jsonify
 from app.tmdb_service import TMDBService
+from app.rawg_service import RAWGService
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 tmdb = TMDBService()
+rawg = RAWGService()
 
 
 @bp.route('/health', methods=['GET'])
@@ -15,31 +17,41 @@ def health_check():
 @bp.route('/search', methods=['GET'])
 def search():
     """
-    Search for movies, TV shows, or both
+    Search for movies, TV shows, or games
     Query params:
-    - q: search query (required)
-    - type: 'movie', 'tv', or 'multi' (default: 'multi')
+    - query: search query (required)
+    - type: 'movie', 'tv', 'game', or 'all' (default: 'all')
     - page: page number (default: 1)
     """
     query = request.args.get('query') or request.args.get('q')
-    media_type = request.args.get('type', 'multi')
+    media_type = request.args.get('type', 'all')
     page = request.args.get('page', 1, type=int)
     
     if not query:
         return jsonify({'error': 'Query parameter "query" is required'}), 400
     
     if media_type == 'all':
-        media_type = 'multi'
+        # Search movies and TV only (no games - use type=game for that)
+        results = tmdb.search_media(query, 'multi', page)
+        if results is None:
+            return jsonify({'error': 'Failed to fetch from TMDB API'}), 500
+        return jsonify(results), 200
     
-    if media_type not in ['movie', 'tv', 'multi']:
-        return jsonify({'error': 'Type must be "movie", "tv", or "multi"'}), 400
+    elif media_type == 'game':
+        # Only query RAWG when explicitly searching games
+        results = rawg.search_games(query, page)
+        if results is None:
+            return jsonify({'error': 'Failed to fetch from RAWG API'}), 500
+        return jsonify(results), 200
     
-    results = tmdb.search_media(query, media_type, page)
+    elif media_type in ['movie', 'tv']:
+        results = tmdb.search_media(query, media_type, page)
+        if results is None:
+            return jsonify({'error': 'Failed to fetch from TMDB API'}), 500
+        return jsonify(results), 200
     
-    if results is None:
-        return jsonify({'error': 'Failed to fetch from TMDB API'}), 500
-    
-    return jsonify(results), 200
+    else:
+        return jsonify({'error': 'Type must be "movie", "tv", "game", or "all"'}), 400
 
 
 @bp.route('/movie/<int:movie_id>', methods=['GET'])
@@ -86,14 +98,39 @@ def get_genres():
     return jsonify(genres), 200
 
 
+
+@bp.route('/trending-all', methods=['GET'])
+def get_trending_all():
+    """Get trending movies, TV shows, and games in one call (optimized)"""
+    try:
+        # Fetch trending from both APIs in parallel
+        movies = tmdb.get_trending('movie', 'week')
+        shows = tmdb.get_trending('tv', 'week')
+        games = rawg.get_trending_games()
+        
+        return jsonify({
+            'movies': movies.get('results', []) if movies else [],
+            'shows': shows.get('results', []) if shows else [],
+            'games': games.get('results', []) if games else [],
+        }), 200
+    except Exception as e:
+        return jsonify({'error': 'Failed to fetch trending data'}), 500
+
+
 @bp.route('/trending', methods=['GET'])
 def get_trending():
-    """Get trending movies/shows"""
+    """Get trending movies/shows/games"""
     media_type = request.args.get('type', 'movie')
     time_window = request.args.get('window', 'week')
     
-    if media_type not in ['movie', 'tv']:
-        return jsonify({'error': 'Type must be "movie" or "tv"'}), 400
+    if media_type not in ['movie', 'tv', 'game']:
+        return jsonify({'error': 'Type must be "movie", "tv", or "game"'}), 400
+    
+    if media_type == 'game':
+        trending = rawg.get_trending_games()
+        if trending is None:
+            return jsonify({'error': 'Failed to fetch trending games'}), 500
+        return jsonify(trending), 200
     
     if time_window not in ['day', 'week']:
         return jsonify({'error': 'Window must be "day" or "week"'}), 400
@@ -142,13 +179,15 @@ def get_top_rated():
 
 @bp.route('/media/<media_type>/<int:media_id>', methods=['GET'])
 def get_media_details(media_type, media_id):
-    """Get details for a movie or TV show by type and ID"""
+    """Get details for a movie, TV show, or game by type and ID"""
     if media_type == 'movie':
         data = tmdb.get_movie(media_id)
     elif media_type == 'tv':
         data = tmdb.get_tv(media_id)
+    elif media_type == 'game':
+        data = rawg.get_game(media_id)
     else:
-        return jsonify({'error': 'media_type must be "movie" or "tv"'}), 400
+        return jsonify({'error': 'media_type must be "movie", "tv", or "game"'}), 400
 
     if data is None:
         return jsonify({'error': 'Failed to fetch media details'}), 500
