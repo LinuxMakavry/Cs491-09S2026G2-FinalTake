@@ -10,4 +10,8 @@ class Config:
     TMDB_API_KEY = os.getenv('TMDB_API_KEY', '')
     TMDB_BASE_URL = 'https://api.themoviedb.org/3'
     TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500'
+    
+    RAWG_API_KEY = os.getenv('RAWG_API_KEY', '')
+    RAWG_BASE_URL = 'https://api.rawg.io/api'
+    
     DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() in ('1', 'true')
