@@ -1,9 +1,15 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./src/test/setupTests.js"],
+    css: true
+  },
   server: {
     port: 5173,
     proxy: {
@@ -14,3 +20,9 @@ export default defineConfig({
     }
   }
 })
+
+/*
+SOURCES / TEMPLATES USED:
+- Vitest docs: `defineConfig`, `test.environment = jsdom`, `setupFiles`
+- Vite React plugin docs: include `@vitejs/plugin-react` in config for JSX handling in tests
+*/
