@@ -1,11 +1,13 @@
-"""API routes that query TMDB and RAWG as databases"""
+"""API routes that query TMDB, RAWG, and Google Books as databases"""
 from flask import Blueprint, request, jsonify
 from app.tmdb_service import TMDBService
 from app.rawg_service import RAWGService
+from app.gbooks_service import GoogleBooksService
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 tmdb = TMDBService()
 rawg = RAWGService()
+gbooks = GoogleBooksService()
 
 
 @bp.route('/health', methods=['GET'])
@@ -17,10 +19,10 @@ def health_check():
 @bp.route('/search', methods=['GET'])
 def search():
     """
-    Search for movies, TV shows, or games
+    Search for movies, TV shows, games, or books
     Query params:
     - query: search query (required)
-    - type: 'movie', 'tv', 'game', or 'all' (default: 'all')
+    - type: 'movie', 'tv', 'game', 'book', or 'all' (default: 'all')
     - page: page number (default: 1)
     """
     query = request.args.get('query') or request.args.get('q')
@@ -31,17 +33,33 @@ def search():
         return jsonify({'error': 'Query parameter "query" is required'}), 400
     
     if media_type == 'all':
-        # Search movies and TV only (no games - use type=game for that)
-        results = tmdb.search_media(query, 'multi', page)
-        if results is None:
-            return jsonify({'error': 'Failed to fetch from TMDB API'}), 500
-        return jsonify(results), 200
+        # Search movies, TV, and books (no games to optimize API calls)
+        tmdb_results = tmdb.search_media(query, 'multi', page)
+        gbooks_results = gbooks.search_books(query, page)
+        
+        results = []
+        if tmdb_results:
+            results.extend(tmdb_results.get('results', []))
+        if gbooks_results:
+            results.extend(gbooks_results.get('results', []))
+        
+        return jsonify({
+            'results': results,
+            'totalResults': len(results),
+        }), 200
     
     elif media_type == 'game':
         # Only query RAWG when explicitly searching games
         results = rawg.search_games(query, page)
         if results is None:
             return jsonify({'error': 'Failed to fetch from RAWG API'}), 500
+        return jsonify(results), 200
+    
+    elif media_type == 'book':
+        # Only query Google Books when explicitly searching books
+        results = gbooks.search_books(query, page)
+        if results is None:
+            return jsonify({'error': 'Failed to fetch from Google Books API'}), 500
         return jsonify(results), 200
     
     elif media_type in ['movie', 'tv']:
@@ -51,7 +69,7 @@ def search():
         return jsonify(results), 200
     
     else:
-        return jsonify({'error': 'Type must be "movie", "tv", "game", or "all"'}), 400
+        return jsonify({'error': 'Type must be "movie", "tv", "game", "book", or "all"'}), 400
 
 
 @bp.route('/movie/<int:movie_id>', methods=['GET'])
@@ -101,17 +119,19 @@ def get_genres():
 
 @bp.route('/trending-all', methods=['GET'])
 def get_trending_all():
-    """Get trending movies, TV shows, and games in one call (optimized)"""
+    """Get trending movies, TV shows, games, and books in one call (optimized)"""
     try:
-        # Fetch trending from both APIs in parallel
+        # Fetch trending from all APIs in parallel
         movies = tmdb.get_trending('movie', 'week')
         shows = tmdb.get_trending('tv', 'week')
         games = rawg.get_trending_games()
+        books = gbooks.get_trending_books()
         
         return jsonify({
             'movies': movies.get('results', []) if movies else [],
             'shows': shows.get('results', []) if shows else [],
             'games': games.get('results', []) if games else [],
+            'books': books.get('results', []) if books else [],
         }), 200
     except Exception as e:
         return jsonify({'error': 'Failed to fetch trending data'}), 500
@@ -119,17 +139,23 @@ def get_trending_all():
 
 @bp.route('/trending', methods=['GET'])
 def get_trending():
-    """Get trending movies/shows/games"""
+    """Get trending movies/shows/games/books"""
     media_type = request.args.get('type', 'movie')
     time_window = request.args.get('window', 'week')
     
-    if media_type not in ['movie', 'tv', 'game']:
-        return jsonify({'error': 'Type must be "movie", "tv", or "game"'}), 400
+    if media_type not in ['movie', 'tv', 'game', 'book']:
+        return jsonify({'error': 'Type must be "movie", "tv", "game", or "book"'}), 400
     
     if media_type == 'game':
         trending = rawg.get_trending_games()
         if trending is None:
             return jsonify({'error': 'Failed to fetch trending games'}), 500
+        return jsonify(trending), 200
+    
+    if media_type == 'book':
+        trending = gbooks.get_trending_books()
+        if trending is None:
+            return jsonify({'error': 'Failed to fetch trending books'}), 500
         return jsonify(trending), 200
     
     if time_window not in ['day', 'week']:
@@ -191,5 +217,16 @@ def get_media_details(media_type, media_id):
 
     if data is None:
         return jsonify({'error': 'Failed to fetch media details'}), 500
+
+    return jsonify(data), 200
+
+
+@bp.route('/media/book/<string:book_id>', methods=['GET'])
+def get_book_details(book_id):
+    """Get details for a book by ID"""
+    data = gbooks.get_book(book_id)
+    
+    if data is None:
+        return jsonify({'error': 'Failed to fetch book details'}), 500
 
     return jsonify(data), 200
