@@ -68,5 +68,4 @@ jobs:
           else
             echo "No tests found; skipping pytest."
           fi
-
 # template used from github.com workflows : https://docs.github.com/en/actions/using-workflows
