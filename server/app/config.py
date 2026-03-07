@@ -14,4 +14,7 @@ class Config:
     RAWG_API_KEY = os.getenv('RAWG_API_KEY', '')
     RAWG_BASE_URL = 'https://api.rawg.io/api'
     
+    GBOOKS_API_KEY = os.getenv('GBOOKS_API_KEY', '')
+    GBOOKS_BASE_URL = 'https://www.googleapis.com/books/v1'
+    
     DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() in ('1', 'true')
