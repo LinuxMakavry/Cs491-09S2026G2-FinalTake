@@ -11,6 +11,7 @@ const SearchPage = () => {
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [trendingShows, setTrendingShows] = useState([]);
   const [trendingGames, setTrendingGames] = useState([]);
+  const [trendingBooks, setTrendingBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isTrendingLoading, setIsTrendingLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,10 +32,12 @@ const SearchPage = () => {
         setTrendingMovies(response.movies || []);
         setTrendingShows(response.shows || []);
         setTrendingGames(response.games || []);
+        setTrendingBooks(response.books || []);
       } catch {
         setTrendingMovies([]);
         setTrendingShows([]);
         setTrendingGames([]);
+        setTrendingBooks([]);
       } finally {
         setIsTrendingLoading(false);
       }
@@ -148,6 +151,7 @@ const SearchPage = () => {
               <option value="movie">Movies</option>
               <option value="tv">TV Shows</option>
               <option value="game">Games</option>
+              <option value="book">Books</option>
             </select>
           </div>
           <div className="search-buttons">
@@ -241,6 +245,22 @@ const SearchPage = () => {
                 {trendingGames.map((media) => (
                   <MediaCard
                     key={`game-${media.id}`}
+                    id={media.id}
+                    title={media.title}
+                    type={media.type}
+                    rating={media.rating}
+                    imageUrl={media.imageUrl}
+                  />
+                ))}
+              </div>
+
+              <div className="results-header">
+                <h2>Trending Books</h2>
+              </div>
+              <div className="media-grid">
+                {trendingBooks.map((media) => (
+                  <MediaCard
+                    key={`book-${media.id}`}
                     id={media.id}
                     title={media.title}
                     type={media.type}
