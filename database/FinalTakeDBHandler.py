@@ -3,7 +3,6 @@
 # Spring 2026
 # CSUF CS491 
 # Group2- Final Take
-
 from mysql.connector import connect, Error
 
 class DBHandler:

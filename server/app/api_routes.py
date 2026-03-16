@@ -133,7 +133,7 @@ def get_trending_all():
             'games': games.get('results', []) if games else [],
             'books': books.get('results', []) if books else [],
         }), 200
-    except Exception:
+    except Exception as e:
         return jsonify({'error': 'Failed to fetch trending data'}), 500
 
 
