@@ -12,7 +12,7 @@ class DBHandler:
         self._conn_args = {
             "host": "localhost",
             "user": "root",
-            "password": "P4ss",
+            "password": "pass",
             "database": "FinalTakeDB",
         }
 
