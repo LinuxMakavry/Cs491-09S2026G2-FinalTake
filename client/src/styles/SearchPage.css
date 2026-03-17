@@ -200,6 +200,36 @@
   color: var(--title-yellow);
 }
 
+/* Trending horizontal scroll row */
+.trending-row {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--system-indigo) transparent;
+}
+
+.trending-row > * {
+  flex: 0 0 220px;
+  scroll-snap-align: start;
+}
+
+.trending-row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.trending-row::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.trending-row::-webkit-scrollbar-thumb {
+  background: var(--system-indigo);
+  border-radius: 3px;
+}
+
 /* Trending tabs */
 .trending-tabs {
   display: flex;

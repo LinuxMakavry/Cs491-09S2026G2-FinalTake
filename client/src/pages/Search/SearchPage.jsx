@@ -234,7 +234,7 @@ const SearchPage = () => {
               ))}
             </div>
             {isTrendingLoading ? (
-              <div className="media-grid">
+              <div className="trending-row">
                 {Array.from({ length: 8 }, (_, i) => <SkeletonCard key={i} />)}
               </div>
             ) : (
@@ -244,7 +244,7 @@ const SearchPage = () => {
                     <div className="results-header">
                       <h2>Trending {label}</h2>
                     </div>
-                    <div className="media-grid">
+                    <div className="trending-row">
                       {data.map((media) => (
                         <MediaCard
                           key={`${key}-${media.id}`}
