@@ -18,8 +18,3 @@ class Config:
     GBOOKS_BASE_URL = 'https://www.googleapis.com/books/v1'
 
     DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() in ('1', 'true')
-
-    # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///' + os.path.join(basedir, 'finaltake.db'))
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
