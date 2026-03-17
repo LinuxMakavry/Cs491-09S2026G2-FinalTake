@@ -1,8 +1,32 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MediaCard from '../../components/media/MediaCard';
 import { ThemeContext } from '../../context/ThemeContext';
 import '../../styles/SearchPage.css';
+
+const HorizontalScrollRow = ({ children }) => {
+  const rowRef = useRef(null);
+
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el) return;
+    const onWheel = (e) => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      // deltaMode 1 = lines (~40px each), 2 = pages; 0 = pixels (default)
+      const multiplier = e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? 800 : 1;
+      el.scrollBy({ left: e.deltaY * multiplier, behavior: 'auto' });
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, []);
+
+  return (
+    <div className="trending-row" ref={rowRef}>
+      {children}
+    </div>
+  );
+};
 
 const SkeletonCard = () => (
   <div className="skeleton-card">
@@ -234,9 +258,9 @@ const SearchPage = () => {
               ))}
             </div>
             {isTrendingLoading ? (
-              <div className="trending-row">
+              <HorizontalScrollRow>
                 {Array.from({ length: 8 }, (_, i) => <SkeletonCard key={i} />)}
-              </div>
+              </HorizontalScrollRow>
             ) : (
               trendingTabs.map(({ key, label, data }) =>
                 activeTab === key && (
@@ -245,7 +269,7 @@ const SearchPage = () => {
                       <h2>Trending {label}</h2>
                     </div>
                     {data.length > 0 ? (
-                      <div className="trending-row">
+                      <HorizontalScrollRow>
                         {data.map((media) => (
                           <MediaCard
                             key={`${key}-${media.id}`}
@@ -256,7 +280,7 @@ const SearchPage = () => {
                             imageUrl={media.imageUrl}
                           />
                         ))}
-                      </div>
+                      </HorizontalScrollRow>
                     ) : (
                       <div className="empty-state">
                         <p>No trending {label.toLowerCase()} available right now.</p>
