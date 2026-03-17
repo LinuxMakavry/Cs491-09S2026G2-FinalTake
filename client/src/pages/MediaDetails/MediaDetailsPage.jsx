@@ -1,119 +1,35 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../../styles/MediaDetailsPage.css';
 
-const mockMediaDetails = {
-  1: {
-    id: 1,
-    title: "The Matrix",
-    type: "movie",
-    rating: 4.5,
-    releaseYear: 1999,
-    director: "The Wachowskis",
-    description: "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
-    genre: ["Sci-Fi", "Action"],
-    imageUrl: null
-  },
-  2: {
-    id: 2,
-    title: "Dune",
-    type: "book",
-    rating: 4.8,
-    releaseYear: 1965,
-    author: "Frank Herbert",
-    description: "Set in the distant future amidst a feudal interstellar society, Dune tells the story of young Paul Atreides.",
-    genre: ["Sci-Fi", "Fantasy"],
-    imageUrl: null
-  },
-  3: {
-    id: 3,
-    title: "The Last of Us",
-    type: "game",
-    rating: 5.0,
-    releaseYear: 2013,
-    developer: "Naughty Dog",
-    description: "Joel and Ellie must survive a brutal journey across a post-pandemic United States.",
-    genre: ["Action", "Adventure", "Survival"],
-    imageUrl: null
-  },
-  4: {
-    id: 4,
-    title: "Breaking Bad",
-    type: "tv",
-    rating: 4.9,
-    releaseYear: 2008,
-    creator: "Vince Gilligan",
-    description: "A chemistry teacher turns to manufacturing methamphetamine to secure his family's future.",
-    genre: ["Crime", "Drama", "Thriller"],
-    imageUrl: null
-  },
-  
-  5: {
-    id: 5,
-    title: "Inception",
-    type: "movie",
-    rating: 4.7,
-    releaseYear: 2010,
-    director: "Christopher Nolan",
-    description: "A thief who steals corporate secrets through dream-sharing technology.",
-    genre: ["Sci-Fi", "Thriller"],
-    imageUrl: null
-  },
-  6: {
-    id: 6,
-    title: "1984",
-    type: "book",
-    rating: 4.6,
-    releaseYear: 1949,
-    author: "George Orwell",
-    description: "A dystopian novel following Winston Smith in a totalitarian society.",
-    genre: ["Dystopian", "Political Fiction"],
-    imageUrl: null
-  },
-  7: {
-    id: 7,
-    title: "God of War",
-    type: "game",
-    rating: 4.8,
-    releaseYear: 2018,
-    developer: "Santa Monica Studio",
-    description: "Kratos and Atreus journey through Norse mythology.",
-    genre: ["Action", "Adventure"],
-    imageUrl: null
-  },
-  8: {
-    id: 8,
-    title: "Stranger Things",
-    type: "tv",
-    rating: 4.5,
-    releaseYear: 2016,
-    creator: "The Duffer Brothers",
-    description: "A group must confront supernatural forces to find a missing boy.",
-    genre: ["Sci-Fi", "Horror", "Drama"],
-    imageUrl: null
-  }
-};
-
 const MediaDetailsPage = () => {
-  const { id } = useParams();
+  const { type, id } = useParams();
   const navigate = useNavigate();
+  const [media, setMedia] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const media = mockMediaDetails[id];
-
-  if (!media) {
-    return (
-      <div className="media-details-page">
-        <div className="error-container">
-          <h2>Media Not Found</h2>
-          <p>The requested media could not be found.</p>
-          <button className="btn btn-primary" onClick={() => navigate('/search')}>
-            Back to Search
-          </button>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const fetchDetails = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/media/${type}/${id}`);
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || `Server error ${res.status}`);
+        }
+        const data = await res.json();
+        setMedia(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDetails();
+  }, [type, id]);
 
   const handleFavoriteToggle = () => {
     setIsFavorite(!isFavorite);
@@ -141,18 +57,36 @@ const MediaDetailsPage = () => {
   };
 
   const getCreatorLabel = (type) => {
-    switch (type) {
-      case 'movie': return 'Director';
-      case 'tv': return 'Creator';
-      case 'book': return 'Author';
-      case 'game': return 'Developer';
-      default: return 'Creator';
-    }
+    return type === 'movie' ? 'Director' : 'Creator';
   };
 
   const getCreatorValue = (media) => {
-    return media.director || media.creator || media.author || media.developer || 'Unknown';
+    return media.director || media.creator || 'Unknown';
   };
+
+  if (isLoading) {
+    return (
+      <div className="media-details-page">
+        <div className="loading-container">
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !media) {
+    return (
+      <div className="media-details-page">
+        <div className="error-container">
+          <h2>Media Not Found</h2>
+          <p>{error || 'The requested media could not be found.'}</p>
+          <button className="btn btn-primary" onClick={() => navigate('/search')}>
+            Back to Search
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="media-details-page">
       <button className="back-button" onClick={() => navigate('/search')}>

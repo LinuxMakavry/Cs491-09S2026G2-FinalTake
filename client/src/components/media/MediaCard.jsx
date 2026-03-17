@@ -5,7 +5,7 @@ const MediaCard = ({ id, title, type, rating, imageUrl }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/media/${id}`);
+    navigate(`/media/${type}/${id}`);
   };
 
   // Function to render stars based on rating
