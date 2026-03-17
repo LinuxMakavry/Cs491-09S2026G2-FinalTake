@@ -200,6 +200,21 @@
   color: var(--title-yellow);
 }
 
+/* Empty state for trending sections */
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  border: 1px dashed var(--system-indigo);
+  margin-bottom: 20px;
+}
+
+.empty-state p {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
 /* Trending horizontal scroll row */
 .trending-row {
   display: flex;

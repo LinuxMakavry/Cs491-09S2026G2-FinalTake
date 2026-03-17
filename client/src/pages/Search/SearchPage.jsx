@@ -244,18 +244,24 @@ const SearchPage = () => {
                     <div className="results-header">
                       <h2>Trending {label}</h2>
                     </div>
-                    <div className="trending-row">
-                      {data.map((media) => (
-                        <MediaCard
-                          key={`${key}-${media.id}`}
-                          id={media.id}
-                          title={media.title}
-                          type={media.type}
-                          rating={media.rating}
-                          imageUrl={media.imageUrl}
-                        />
-                      ))}
-                    </div>
+                    {data.length > 0 ? (
+                      <div className="trending-row">
+                        {data.map((media) => (
+                          <MediaCard
+                            key={`${key}-${media.id}`}
+                            id={media.id}
+                            title={media.title}
+                            type={media.type}
+                            rating={media.rating}
+                            imageUrl={media.imageUrl}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="empty-state">
+                        <p>No trending {label.toLowerCase()} available right now.</p>
+                      </div>
+                    )}
                   </div>
                 )
               )
