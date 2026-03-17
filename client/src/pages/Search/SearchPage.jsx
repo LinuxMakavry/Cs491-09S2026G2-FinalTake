@@ -4,6 +4,14 @@ import MediaCard from '../../components/media/MediaCard';
 import { ThemeContext } from '../../context/ThemeContext';
 import '../../styles/SearchPage.css';
 
+const SkeletonCard = () => (
+  <div className="skeleton-card">
+    <div className="skeleton-image" />
+    <div className="skeleton-text skeleton-title" />
+    <div className="skeleton-text skeleton-subtitle" />
+  </div>
+);
+
 const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('all');
@@ -164,45 +172,56 @@ const SearchPage = () => {
       </div>
 
       <div className="results-container">
-        {(isLoading || isTrendingLoading) && (
-          <div className="loading-state">
-            <p>{isLoading ? 'Searching...' : 'Loading trending...'}</p>
-          </div>
-        )}
-
         {error && (
           <div className="error-state">
             <p>Error: {error}</p>
           </div>
         )}
 
-        {!isLoading && !isTrendingLoading && !error && (
-          hasSearched ? (
-            <>
-              <div className="results-header">
-                <h2>Search Results ({mediaResults.length})</h2>
+        {!error && hasSearched && (
+          <>
+            <div className="results-header">
+              <h2>Search Results {!isLoading && `(${mediaResults.length})`}</h2>
+            </div>
+            {isLoading ? (
+              <div className="media-grid">
+                {Array.from({ length: 8 }, (_, i) => <SkeletonCard key={i} />)}
               </div>
-              {mediaResults.length > 0 ? (
-                <div className="media-grid">
-                  {mediaResults.map((media) => (
-                    <MediaCard
-                      key={`${media.type}-${media.id}`}
-                      id={media.id}
-                      title={media.title}
-                      type={media.type}
-                      rating={media.rating}
-                      imageUrl={media.imageUrl}
-                    />
-                  ))}
+            ) : mediaResults.length > 0 ? (
+              <div className="media-grid">
+                {mediaResults.map((media) => (
+                  <MediaCard
+                    key={`${media.type}-${media.id}`}
+                    id={media.id}
+                    title={media.title}
+                    type={media.type}
+                    rating={media.rating}
+                    imageUrl={media.imageUrl}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="no-results">
+                <p>No media found matching your search.</p>
+                <button className="btn btn-secondary" onClick={handleReset}>
+                  Clear Filters
+                </button>
+              </div>
+            )}
+          </>
+        )}
+
+        {!error && !hasSearched && (
+          isTrendingLoading ? (
+            <>
+              {['Movies', 'TV Shows', 'Games', 'Books'].map((label) => (
+                <div key={label}>
+                  <div className="results-header"><h2>Trending {label}</h2></div>
+                  <div className="media-grid">
+                    {Array.from({ length: 8 }, (_, i) => <SkeletonCard key={i} />)}
+                  </div>
                 </div>
-              ) : (
-                <div className="no-results">
-                  <p>No media found matching your search.</p>
-                  <button className="btn btn-secondary" onClick={handleReset}>
-                    Clear Filters
-                  </button>
-                </div>
-              )}
+              ))}
             </>
           ) : (
             <>
