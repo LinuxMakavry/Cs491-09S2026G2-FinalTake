@@ -49,6 +49,9 @@ const SearchPage = () => {
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [activeTab, setActiveTab] = useState('movies');
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchWrapperRef = useRef(null);
   const navigate = useNavigate();
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [user] = useState(() => {
@@ -78,6 +81,45 @@ const SearchPage = () => {
     fetchTrending();
   }, []);
 
+  // Debounced preview suggestions
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ query: searchQuery.trim(), limit: 5 });
+        if (selectedType !== 'all') params.append('type', selectedType);
+        const res = await fetch(`/api/search?${params}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setSuggestions(data.results?.slice(0, 5) || []);
+        setShowSuggestions(true);
+      } catch {
+        setSuggestions([]);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery, selectedType]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchWrapperRef.current && !searchWrapperRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSuggestionClick = (item) => {
+    setShowSuggestions(false);
+    navigate(`/media/${item.type}/${item.id}`);
+  };
+
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -85,6 +127,8 @@ const SearchPage = () => {
     setIsLoading(true);
     setError(null);
     setHasSearched(true);
+    setShowSuggestions(false);
+    setSuggestions([]);
 
     try {
       const params = new URLSearchParams({ query: searchQuery.trim() });
@@ -111,6 +155,8 @@ const SearchPage = () => {
     setMediaResults([]);
     setHasSearched(false);
     setError(null);
+    setSuggestions([]);
+    setShowSuggestions(false);
   };
 
   const handleLogout = () => {
@@ -174,14 +220,33 @@ const SearchPage = () => {
 
       <div className="search-container">
         <form className="search-form" onSubmit={handleSearch}>
-          <div className="search-input-group">
+          <div className="search-input-group" ref={searchWrapperRef} style={{ position: 'relative' }}>
             <input
               type="text"
               className="search-input"
               placeholder="Search for movies, books, games, TV shows..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+              autoComplete="off"
             />
+            {showSuggestions && suggestions.length > 0 && (
+              <ul className="suggestions-dropdown">
+                {suggestions.map((item) => (
+                  <li
+                    key={`${item.type}-${item.id}`}
+                    className="suggestion-item"
+                    onMouseDown={() => handleSuggestionClick(item)}
+                  >
+                    {item.imageUrl && (
+                      <img src={item.imageUrl} alt="" className="suggestion-thumb" />
+                    )}
+                    <span className="suggestion-title">{item.title}</span>
+                    <span className="suggestion-type">{item.type}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
             <select
               className="type-filter"
               value={selectedType}
