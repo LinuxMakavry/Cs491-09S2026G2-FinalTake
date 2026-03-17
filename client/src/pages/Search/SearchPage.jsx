@@ -24,6 +24,7 @@ const SearchPage = () => {
   const [isTrendingLoading, setIsTrendingLoading] = useState(true);
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [activeTab, setActiveTab] = useState('movies');
   const navigate = useNavigate();
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [user] = useState(() => {
@@ -96,6 +97,13 @@ const SearchPage = () => {
   const handleHomeClick = () => {
     navigate('/search');
   };
+
+  const trendingTabs = [
+    { key: 'movies', label: 'Movies', data: trendingMovies },
+    { key: 'tv', label: 'TV Shows', data: trendingShows },
+    { key: 'games', label: 'Games', data: trendingGames },
+    { key: 'books', label: 'Books', data: trendingBooks },
+  ];
 
   return (
     <div className="search-page">
@@ -212,84 +220,47 @@ const SearchPage = () => {
         )}
 
         {!error && !hasSearched && (
-          isTrendingLoading ? (
-            <>
-              {['Movies', 'TV Shows', 'Games', 'Books'].map((label) => (
-                <div key={label}>
-                  <div className="results-header"><h2>Trending {label}</h2></div>
-                  <div className="media-grid">
-                    {Array.from({ length: 8 }, (_, i) => <SkeletonCard key={i} />)}
-                  </div>
-                </div>
+          <>
+            <div className="trending-tabs">
+              {trendingTabs.map(({ key, label }) => (
+                <button
+                  key={key}
+                  className={`tab-btn${activeTab === key ? ' tab-btn--active' : ''}`}
+                  onClick={() => setActiveTab(key)}
+                  disabled={isTrendingLoading}
+                >
+                  {label}
+                </button>
               ))}
-            </>
-          ) : (
-            <>
-              <div className="results-header">
-                <h2>Trending Movies</h2>
-              </div>
+            </div>
+            {isTrendingLoading ? (
               <div className="media-grid">
-                {trendingMovies.map((media) => (
-                  <MediaCard
-                    key={`movie-${media.id}`}
-                    id={media.id}
-                    title={media.title}
-                    type={media.type}
-                    rating={media.rating}
-                    imageUrl={media.imageUrl}
-                  />
-                ))}
+                {Array.from({ length: 8 }, (_, i) => <SkeletonCard key={i} />)}
               </div>
-
-              <div className="results-header">
-                <h2>Trending TV Shows</h2>
-              </div>
-              <div className="media-grid">
-                {trendingShows.map((media) => (
-                  <MediaCard
-                    key={`tv-${media.id}`}
-                    id={media.id}
-                    title={media.title}
-                    type={media.type}
-                    rating={media.rating}
-                    imageUrl={media.imageUrl}
-                  />
-                ))}
-              </div>
-
-              <div className="results-header">
-                <h2>Trending Games</h2>
-              </div>
-              <div className="media-grid">
-                {trendingGames.map((media) => (
-                  <MediaCard
-                    key={`game-${media.id}`}
-                    id={media.id}
-                    title={media.title}
-                    type={media.type}
-                    rating={media.rating}
-                    imageUrl={media.imageUrl}
-                  />
-                ))}
-              </div>
-
-              <div className="results-header">
-                <h2>Trending Books</h2>
-              </div>
-              <div className="media-grid">
-                {trendingBooks.map((media) => (
-                  <MediaCard
-                    key={`book-${media.id}`}
-                    id={media.id}
-                    title={media.title}
-                    type={media.type}
-                    rating={media.rating}
-                    imageUrl={media.imageUrl}
-                  />
-                ))}
-              </div>
-            </>
-          )
+            ) : (
+              trendingTabs.map(({ key, label, data }) =>
+                activeTab === key && (
+                  <div key={key}>
+                    <div className="results-header">
+                      <h2>Trending {label}</h2>
+                    </div>
+                    <div className="media-grid">
+                      {data.map((media) => (
+                        <MediaCard
+                          key={`${key}-${media.id}`}
+                          id={media.id}
+                          title={media.title}
+                          type={media.type}
+                          rating={media.rating}
+                          imageUrl={media.imageUrl}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              )
+            )}
+          </>
         )}
       </div>
     </div>
