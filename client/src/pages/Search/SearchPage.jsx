@@ -166,7 +166,7 @@ const SearchPage = () => {
       <div className="results-container">
         {(isLoading || isTrendingLoading) && (
           <div className="loading-state">
-            <p>{isLoading ? 'Searching TMDB...' : 'Loading trending...'}</p>
+            <p>{isLoading ? 'Searching...' : 'Loading trending...'}</p>
           </div>
         )}
 
