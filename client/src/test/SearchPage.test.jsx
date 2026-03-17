@@ -16,7 +16,7 @@ vi.mock("react-router-dom", async () => {
 
 // Mock fetch globally
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+vi.stubGlobal("fetch", mockFetch);
 
 // Helper to render SearchPage with ThemeContext provided
 function renderWithTheme(ui, { theme = "light", toggleTheme = vi.fn() } = {}) {
@@ -106,6 +106,7 @@ describe("SearchPage", () => {
   });
 
   it("shows 'No media found...' when filter matches nothing, and reset restores results", async () => {
+    // Override fetch so search returns no results
     mockFetch.mockImplementation((url) => {
       if (url.includes("/api/trending-all")) {
         return Promise.resolve({
@@ -119,6 +120,7 @@ describe("SearchPage", () => {
             }),
         });
       }
+      // search returns empty
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve({ results: [] }),
