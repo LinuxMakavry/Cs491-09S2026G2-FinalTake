@@ -64,7 +64,7 @@ jobs:
       - name: Test
         run: |
           if [ -d app/tests ]; then
-            pytest app/tests/ -q --junitxml=test-results.xml
+            PYTHONPATH=. pytest app/tests/ -q --junitxml=test-results.xml
           else
             echo "No tests found; skipping pytest."
           fi
