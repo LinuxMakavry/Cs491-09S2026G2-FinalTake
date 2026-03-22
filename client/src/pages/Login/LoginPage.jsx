@@ -2,33 +2,76 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/LoginPage.css';
 
+const API_BASE = 'http://localhost:5000';
+
 const LoginPage = () => {
+  const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Basic validation
     if (!email || !password) {
       setError('Please enter both email and password');
       return;
     }
 
-    if (!email.includes('@')) {
-      setError('Please enter a valid email');
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Login failed');
+        return;
+      }
+      localStorage.setItem('user', JSON.stringify({ ...data.user, isLoggedIn: true }));
+      navigate('/search');
+    } catch {
+      setError('Cannot reach server. Make sure the backend is running.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!username || !email || !password) {
+      setError('Please fill in all fields');
       return;
     }
 
-    // Store user in localStorage (basic session, no backend yet)
-    localStorage.setItem('user', JSON.stringify({ email, isLoggedIn: true }));
-    
-    // Redirect to search page
-    navigate('/search');
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Registration failed');
+        return;
+      }
+      localStorage.setItem('user', JSON.stringify({ ...data.user, isLoggedIn: true }));
+      navigate('/search');
+    } catch {
+      setError('Cannot reach server. Make sure the backend is running.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleHomeClick = () => {
@@ -53,10 +96,24 @@ const LoginPage = () => {
       </header>
 
       <div className="login-container">
-        <form className="login-form" onSubmit={handleLogin}>
-          <h2>Login</h2>
-          
+        <form className="login-form" onSubmit={mode === 'login' ? handleLogin : handleRegister}>
+          <h2>{mode === 'login' ? 'Login' : 'Create Account'}</h2>
+
           {error && <div className="error-message">{error}</div>}
+
+          {mode === 'register' && (
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                className="form-input"
+                placeholder="Choose a username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label htmlFor="email">Email</label>
@@ -92,24 +149,28 @@ const LoginPage = () => {
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary btn-full">
-            Login
+          <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
+            {loading ? 'Please wait...' : mode === 'login' ? 'Login' : 'Create Account'}
           </button>
-
-          <div className="forgot-password-section">
-            <button type="button" className="forgot-password-link">
-              Forgot your password?
-            </button>
-          </div>
         </form>
 
         <div className="signup-section">
-          <p className="signup-text">Don't have an account? <button className="signup-link">Sign up</button></p>
+          {mode === 'login' ? (
+            <p className="signup-text">
+              Don&apos;t have an account?{' '}
+              <button className="signup-link" onClick={() => { setMode('register'); setError(''); }}>
+                Sign up
+              </button>
+            </p>
+          ) : (
+            <p className="signup-text">
+              Already have an account?{' '}
+              <button className="signup-link" onClick={() => { setMode('login'); setError(''); }}>
+                Log in
+              </button>
+            </p>
+          )}
         </div>
-
-        <p className="login-footer">
-          Note: This is a basic login without backend. Any email/password will work for testing as long as the email contains '@' i.e. test@test.com
-        </p>
       </div>
     </div>
   );
