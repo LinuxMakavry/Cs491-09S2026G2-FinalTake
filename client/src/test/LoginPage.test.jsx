@@ -28,12 +28,12 @@ describe("LoginPage", () => {
   });
 
   it("stores user and navigates on valid login", async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         user: { id: 1, email: "test@test.com", username: "testuser" }
       })
-    });
+    }));
 
     render(<LoginPage />);
 
@@ -54,10 +54,10 @@ describe("LoginPage", () => {
   });
 
   it("shows error message on failed login", async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: false,
       json: async () => ({ error: "Invalid email or password" })
-    });
+    }));
 
     render(<LoginPage />);
 
@@ -80,5 +80,5 @@ SOURCES:
 - Vitest documentation (mocking + test structure)
 - React Testing Library documentation (render, screen, fireEvent, waitFor)
 - react-router-dom testing pattern (mocking useNavigate)
-- fetch mocking pattern: vi.fn().mockResolvedValue for async API calls
+- fetch mocking pattern: vi.stubGlobal for mocking browser globals in Vitest
 */
