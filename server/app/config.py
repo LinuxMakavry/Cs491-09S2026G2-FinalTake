@@ -7,13 +7,13 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 
 class Config:
-    # Database
+    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DATABASE_URL',
         'sqlite:///' + os.path.join(basedir, 'finaltake.db')
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 
     TMDB_API_KEY = os.getenv('TMDB_API_KEY', '')
     TMDB_BASE_URL = 'https://api.themoviedb.org/3'

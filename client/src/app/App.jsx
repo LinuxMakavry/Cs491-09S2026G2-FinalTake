@@ -5,6 +5,11 @@ import LoginPage from '../pages/Login/LoginPage';
 import { ThemeProvider } from '../context/ThemeContext';
 import '../styles/App.css';
 
+function PrivateRoute({ children }) {
+  const user = localStorage.getItem('user');
+  return user ? children : <Navigate to="/login" replace />;
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -17,11 +22,11 @@ function App() {
             {/* Login page */}
             <Route path="/login" element={<LoginPage />} />
             
-            {/* Search page - main landing */}
-            <Route path="/search" element={<SearchPage />} />
+            {/* Search page - protected */}
+            <Route path="/search" element={<PrivateRoute><SearchPage /></PrivateRoute>} />
             
-            {/* Media details page */}
-            <Route path="/media/:type/:id" element={<MediaDetailsPage />} />
+            {/* Media details page - protected */}
+            <Route path="/media/:type/:id" element={<PrivateRoute><MediaDetailsPage /></PrivateRoute>} />
             
             {/* Catch-all route */}
             <Route path="*" element={<Navigate to="/search" replace />} />

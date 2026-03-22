@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import '../../styles/LoginPage.css';
 
 const LoginPage = () => {
+  const [mode, setMode] = useState('login');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -14,39 +16,57 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
 
-    // Basic client-side validation
     if (!email || !password) {
       setError('Please enter both email and password');
       return;
     }
 
-    if (!email.includes('@')) {
-      setError('Please enter a valid email');
-      return;
-    }
-
     setIsLoading(true);
-
     try {
-      const response = await fetch('/auth/login', {
+      const res = await fetch('/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || 'Invalid email or password');
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Login failed');
         return;
       }
-
-      // Store user in localStorage on successful login
       localStorage.setItem('user', JSON.stringify({ ...data.user, isLoggedIn: true }));
       navigate('/search');
-
     } catch {
-      setError('Unable to connect to the server. Please try again.');
+      setError('Cannot reach server. Make sure the backend is running.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!username || !email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await fetch('/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Registration failed');
+        return;
+      }
+      localStorage.setItem('user', JSON.stringify({ ...data.user, isLoggedIn: true }));
+      navigate('/search');
+    } catch {
+      setError('Cannot reach server. Make sure the backend is running.');
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +79,7 @@ const LoginPage = () => {
   return (
     <div className="login-page">
       <header className="login-header">
-        <button 
+        <button
           className="home-button"
           onClick={handleHomeClick}
           title="Go to Home"
@@ -74,10 +94,24 @@ const LoginPage = () => {
       </header>
 
       <div className="login-container">
-        <form className="login-form" onSubmit={handleLogin}>
-          <h2>Login</h2>
-          
+        <form className="login-form" onSubmit={mode === 'login' ? handleLogin : handleRegister}>
+          <h2>{mode === 'login' ? 'Login' : 'Create Account'}</h2>
+
           {error && <div className="error-message">{error}</div>}
+
+          {mode === 'register' && (
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                className="form-input"
+                placeholder="Choose a username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label htmlFor="email">Email</label>
@@ -114,18 +148,26 @@ const LoginPage = () => {
           </div>
 
           <button type="submit" className="btn btn-primary btn-full" disabled={isLoading}>
-            {isLoading ? 'Logging in...' : 'Login'}
+            {isLoading ? 'Please wait...' : mode === 'login' ? 'Login' : 'Create Account'}
           </button>
-
-          <div className="forgot-password-section">
-            <button type="button" className="forgot-password-link">
-              Forgot your password?
-            </button>
-          </div>
         </form>
 
         <div className="signup-section">
-          <p className="signup-text">Don't have an account? <button className="signup-link">Sign up</button></p>
+          {mode === 'login' ? (
+            <p className="signup-text">
+              Don&apos;t have an account?{' '}
+              <button className="signup-link" onClick={() => { setMode('register'); setError(''); }}>
+                Sign up
+              </button>
+            </p>
+          ) : (
+            <p className="signup-text">
+              Already have an account?{' '}
+              <button className="signup-link" onClick={() => { setMode('login'); setError(''); }}>
+                Log in
+              </button>
+            </p>
+          )}
         </div>
       </div>
     </div>

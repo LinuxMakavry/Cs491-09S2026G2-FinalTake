@@ -4,11 +4,13 @@ from .config import Config
 from .models import db
 
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
     app.config.from_object(Config)
+    if test_config:
+        app.config.update(test_config)
 
-    # Initialize database with app
+    # Initialize database
     db.init_app(app)
 
     # Allow requests from the Vite dev server
@@ -20,11 +22,10 @@ def create_app():
     from .api_routes import bp
     app.register_blueprint(bp)
 
-    # Register auth blueprint
-    from .auth_routes import auth_bp
+    from .routes.auth import auth_bp
     app.register_blueprint(auth_bp)
 
-    # Create tables if they don't exist
+    # Create database tables
     with app.app_context():
         db.create_all()
 
