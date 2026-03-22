@@ -7,13 +7,14 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Basic validation
+    // Basic client-side validation
     if (!email || !password) {
       setError('Please enter both email and password');
       return;
@@ -24,11 +25,31 @@ const LoginPage = () => {
       return;
     }
 
-    // Store user in localStorage (basic session, no backend yet)
-    localStorage.setItem('user', JSON.stringify({ email, isLoggedIn: true }));
-    
-    // Redirect to search page
-    navigate('/search');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Invalid email or password');
+        return;
+      }
+
+      // Store user in localStorage on successful login
+      localStorage.setItem('user', JSON.stringify({ ...data.user, isLoggedIn: true }));
+      navigate('/search');
+
+    } catch {
+      setError('Unable to connect to the server. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleHomeClick = () => {
@@ -92,8 +113,8 @@ const LoginPage = () => {
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary btn-full">
-            Login
+          <button type="submit" className="btn btn-primary btn-full" disabled={isLoading}>
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
 
           <div className="forgot-password-section">
@@ -106,10 +127,6 @@ const LoginPage = () => {
         <div className="signup-section">
           <p className="signup-text">Don't have an account? <button className="signup-link">Sign up</button></p>
         </div>
-
-        <p className="login-footer">
-          Note: This is a basic login without backend. Any email/password will work for testing as long as the email contains '@' i.e. test@test.com
-        </p>
       </div>
     </div>
   );
