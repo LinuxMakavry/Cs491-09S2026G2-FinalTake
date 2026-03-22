@@ -8,8 +8,8 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setupTests.js"],
-    css: true
-  },
+    css : true, // Enable CSS support in tests
+},
   server: {
     port: 5173,
     proxy: {

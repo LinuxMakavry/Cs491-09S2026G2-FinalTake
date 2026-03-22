@@ -13,12 +13,21 @@ export default defineConfig([
     plugins: { js },
     extends: ["js/recommended"],
     languageOptions: {
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+      },
+    },
+  },
+  {
+    files: ["src/test/**/*.{js,jsx,ts,tsx}"],
+    languageOptions: {
+      globals: {
+        global: "writable",
+      },
     },
   },
 
   tseslint.configs.recommended,
-
   pluginReact.configs.flat.recommended,
 
   {
