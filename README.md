@@ -82,6 +82,16 @@ This project is organized as a simple, industry-ready monorepo with a frontend c
 
 6. When done, press `Ctrl + C` in each terminal to stop the servers
 
+## Setting Up Test User
+After starting the backend for the first time, run the seed script to create a test user:
+```bash
+cd server
+python seed.py
+```
+Test credentials:
+- Email: `test@test.com`
+- Password: `password123`
+
 ## Linting
 
 ```text

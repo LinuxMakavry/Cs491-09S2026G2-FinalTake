@@ -8,14 +8,18 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setupTests.js"],
-    css : true, // Enable CSS support in tests
+    css : false,
 },
   server: {
     port: 5173,
     proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
+  '/api': {
+    target: 'http://localhost:5000',
+    changeOrigin: true,
+  },
+  '/auth': {
+    target: 'http://localhost:5000',
+    changeOrigin: true,
       }
     }
   }

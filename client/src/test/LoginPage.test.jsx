@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react"; // add waitFor
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import LoginPage from "../pages/Login/LoginPage";
 
 const mockNavigate = vi.fn();
@@ -16,14 +16,7 @@ describe("LoginPage", () => {
   beforeEach(() => {
     mockNavigate.mockClear();
     localStorage.clear();
-
-    // Mock fetch to simulate a successful login response
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        user: { email: "test@test.com" },
-      }),
-    });
+    vi.restoreAllMocks();
   });
 
   it("shows validation error if email or password missing", () => {
@@ -35,6 +28,13 @@ describe("LoginPage", () => {
   });
 
   it("stores user and navigates on valid login", async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        user: { id: 1, email: "test@test.com", username: "testuser" }
+      })
+    }));
+
     render(<LoginPage />);
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "test@test.com" },
@@ -51,10 +51,32 @@ describe("LoginPage", () => {
       expect(mockNavigate).toHaveBeenCalledWith("/search");
     });
   });
+
+  it("shows error message on failed login", async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: false,
+      json: async () => ({ error: "Invalid email or password" })
+    }));
+
+    render(<LoginPage />);
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "wrong@test.com" }
+    });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "wrongpassword" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Login" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Invalid email or password")).toBeInTheDocument();
+    });
+  });
 });
 /*
 SOURCES:
 - Vitest documentation (mocking + test structure)
-- React Testing Library documentation (render, screen, fireEvent)
+- React Testing Library documentation (render, screen, fireEvent, waitFor)
 - react-router-dom testing pattern (mocking useNavigate)
+- fetch mocking pattern: vi.stubGlobal for mocking browser globals in Vitest
 */

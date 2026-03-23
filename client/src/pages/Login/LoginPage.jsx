@@ -2,16 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/LoginPage.css';
 
-const API_BASE = 'http://localhost:5000';
-
 const LoginPage = () => {
-  const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const [mode, setMode] = useState('login');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -23,9 +21,9 @@ const LoginPage = () => {
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
+      const res = await fetch('/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -40,7 +38,7 @@ const LoginPage = () => {
     } catch {
       setError('Cannot reach server. Make sure the backend is running.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -53,9 +51,9 @@ const LoginPage = () => {
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/auth/register`, {
+      const res = await fetch('/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),
@@ -70,7 +68,7 @@ const LoginPage = () => {
     } catch {
       setError('Cannot reach server. Make sure the backend is running.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -81,7 +79,7 @@ const LoginPage = () => {
   return (
     <div className="login-page">
       <header className="login-header">
-        <button 
+        <button
           className="home-button"
           onClick={handleHomeClick}
           title="Go to Home"
@@ -149,8 +147,8 @@ const LoginPage = () => {
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
-            {loading ? 'Please wait...' : mode === 'login' ? 'Login' : 'Create Account'}
+          <button type="submit" className="btn btn-primary btn-full" disabled={isLoading}>
+            {isLoading ? 'Please wait...' : mode === 'login' ? 'Login' : 'Create Account'}
           </button>
         </form>
 
