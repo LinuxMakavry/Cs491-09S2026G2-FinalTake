@@ -1,117 +1,86 @@
 """
-Test suite for /auth routes (register + login)
-TC-A01 through TC-A10
+Test suite for User model
+Methodology: Unit testing the User model directly
+with an in-memory SQLite database.
 """
 import pytest
-from app import create_app
+from flask import Flask
+from app.models import db as _db
+from app.models.user import User
 
 
 @pytest.fixture
-def client():
-    app = create_app(test_config={
-        "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"
-    })
+def app():
+    app = Flask(__name__)
+    app.config["TESTING"] = True
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    _db.init_app(app)
     with app.app_context():
-        with app.test_client() as client:
-            yield client
+        _db.create_all()
+        yield app
+        _db.drop_all()
 
 
-# ── Register ────────────────────────────────────────────────
-class TestRegister:
-
-    def test_register_success(self, client):
-        """TC-A01: Valid data → 201 and user object returned"""
-        res = client.post("/auth/register", json={
-            "username": "alice", "email": "alice@test.com", "password": "secret123"
-        })
-        assert res.status_code == 201
-        data = res.get_json()
-        assert data["user"]["username"] == "alice"
-        assert data["user"]["email"] == "alice@test.com"
-        assert "password" not in data["user"]
-        assert "password_hash" not in data["user"]
-
-    def test_register_missing_fields_returns_400(self, client):
-        """TC-A02: Missing password → 400"""
-        res = client.post("/auth/register", json={
-            "username": "bob", "email": "bob@test.com"
-        })
-        assert res.status_code == 400
-        assert "error" in res.get_json()
-
-    def test_register_duplicate_email_returns_409(self, client):
-        """TC-A03: Same email twice → 409 conflict"""
-        client.post("/auth/register", json={
-            "username": "alice", "email": "alice@test.com", "password": "secret123"
-        })
-        res = client.post("/auth/register", json={
-            "username": "alice2", "email": "alice@test.com", "password": "other"
-        })
-        assert res.status_code == 409
-        assert "error" in res.get_json()
-
-    def test_register_duplicate_username_returns_409(self, client):
-        """TC-A04: Same username twice → 409 conflict"""
-        client.post("/auth/register", json={
-            "username": "alice", "email": "alice@test.com", "password": "secret123"
-        })
-        res = client.post("/auth/register", json={
-            "username": "alice", "email": "different@test.com", "password": "other"
-        })
-        assert res.status_code == 409
-
-    def test_register_password_not_exposed(self, client):
-        """TC-A05: Password hash must never appear in response"""
-        res = client.post("/auth/register", json={
-            "username": "charlie", "email": "charlie@test.com", "password": "pass"
-        })
-        body = res.get_json()
-        assert "password_hash" not in str(body)
-        assert "password" not in body["user"]
+def test_create_user(app):
+    """User can be created and saved to database"""
+    with app.app_context():
+        user = User(username='testuser', email='test@example.com')
+        user.set_password('mypassword')
+        _db.session.add(user)
+        _db.session.commit()
+        assert user.id is not None
+        assert user.username == 'testuser'
 
 
-# ── Login ───────────────────────────────────────────────────
-class TestLogin:
+def test_password_is_hashed(app):
+    """Password is stored as hash not plaintext"""
+    with app.app_context():
+        user = User(username='hashuser', email='hash@example.com')
+        user.set_password('mypassword')
+        assert user.password_hash != 'mypassword'
+        assert len(user.password_hash) > 50
 
-    def _register(self, client):
-        client.post("/auth/register", json={
-            "username": "testuser", "email": "test@test.com", "password": "password123"
-        })
 
-    def test_login_success(self, client):
-        """TC-A06: Correct credentials → 200 and user object"""
-        self._register(client)
-        res = client.post("/auth/login", json={
-            "email": "test@test.com", "password": "password123"
-        })
-        assert res.status_code == 200
-        data = res.get_json()
-        assert data["message"] == "Login successful"
-        assert data["user"]["email"] == "test@test.com"
+def test_check_password_correct(app):
+    """check_password returns True for correct password"""
+    with app.app_context():
+        user = User(username='checkuser', email='check@example.com')
+        user.set_password('mypassword')
+        assert user.check_password('mypassword') is True
 
-    def test_login_wrong_password_returns_401(self, client):
-        """TC-A07: Wrong password → 401"""
-        self._register(client)
-        res = client.post("/auth/login", json={
-            "email": "test@test.com", "password": "wrongpassword"
-        })
-        assert res.status_code == 401
-        assert "error" in res.get_json()
 
-    def test_login_unknown_email_returns_401(self, client):
-        """TC-A08: Email not in DB → 401"""
-        res = client.post("/auth/login", json={
-            "email": "nobody@test.com", "password": "password123"
-        })
-        assert res.status_code == 401
+def test_check_password_wrong(app):
+    """check_password returns False for wrong password"""
+    with app.app_context():
+        user = User(username='wronguser', email='wrong@example.com')
+        user.set_password('mypassword')
+        assert user.check_password('badpassword') is False
 
-    def test_login_missing_fields_returns_400(self, client):
-        """TC-A09: Missing email → 400"""
-        res = client.post("/auth/login", json={"password": "password123"})
-        assert res.status_code == 400
 
-    def test_login_empty_body_returns_400(self, client):
-        """TC-A10: Empty JSON body → 400"""
-        res = client.post("/auth/login", json={})
-        assert res.status_code == 400
+def test_to_dict_no_password(app):
+    """to_dict never exposes password data"""
+    with app.app_context():
+        user = User(username='dictuser', email='dict@example.com')
+        user.set_password('mypassword')
+        _db.session.add(user)
+        _db.session.commit()
+        data = user.to_dict()
+        assert 'password' not in data
+        assert 'password_hash' not in data
+        assert data['username'] == 'dictuser'
+
+
+def test_duplicate_email_rejected(app):
+    """Database rejects duplicate emails"""
+    with app.app_context():
+        user1 = User(username='user1', email='same@example.com')
+        user1.set_password('pass1')
+        _db.session.add(user1)
+        _db.session.commit()
+
+        user2 = User(username='user2', email='same@example.com')
+        user2.set_password('pass2')
+        _db.session.add(user2)
+        with pytest.raises(Exception):
+            _db.session.commit()

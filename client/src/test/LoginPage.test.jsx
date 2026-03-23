@@ -8,7 +8,7 @@ vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
     ...actual,
-    useNavigate: () => mockNavigate
+    useNavigate: () => mockNavigate,
   };
 });
 
@@ -36,12 +36,11 @@ describe("LoginPage", () => {
     }));
 
     render(<LoginPage />);
-
     fireEvent.change(screen.getByLabelText("Email"), {
-      target: { value: "test@test.com" }
+      target: { value: "test@test.com" },
     });
     fireEvent.change(screen.getByLabelText("Password"), {
-      target: { value: "password123" }
+      target: { value: "password123" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Login" }));
 
@@ -74,7 +73,6 @@ describe("LoginPage", () => {
     });
   });
 });
-
 /*
 SOURCES:
 - Vitest documentation (mocking + test structure)
