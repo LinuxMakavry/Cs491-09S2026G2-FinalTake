@@ -8,12 +8,12 @@ from mysql.connector import connect, Error
 class DBHandler:
 
     def __init__(self):
-        self.database = "FinalTakeDB"
+        self.database = "FinalTake"
         self._conn_args = {
             "host": "localhost",
             "user": "root",
-            "password": "pass",
-            "database": "FinalTakeDB",
+            "password": "finalTakePass",
+            "database": "FinalTake",
         }
 
     def signup(self, email, password, username):
@@ -21,7 +21,7 @@ class DBHandler:
             with connect(**self._conn_args) as con:
                 with con.cursor() as cur:
                     cur.execute(
-                        "INSERT INTO Users (email, password, username) VALUES (%s, %s, %s)",
+                        "INSERT INTO Users (email, pw, username) VALUES (%s, %s, %s)",
                         (email, password, username)
                     )
                     con.commit()
@@ -36,18 +36,60 @@ class DBHandler:
             with connect(**self._conn_args) as con:
                 with con.cursor() as cur:
                     cur.execute(
-                        "SELECT email, password, username FROM Users WHERE email = %s",
+                        "SELECT email, pw, USERID FROM Users WHERE email = %s",
                         (email,)
                     )
                     result = cur.fetchall()
                     if len(result) < 1:
                         return -1
                     if password == result[0][1]:
-                        return result[0][2]
+                        #Logged in, create and return sessionID so user can stay logged in.
+                        #Note for future, implement timeout for the value.
+                        cur.execute("INSERT INTO sessions (SessionUser) values (%s)", 
+                        (result[0][2],)
+                        )
+                        con.commit()
+                        cur.execute("Select SessionID from sessions where SessionUser = %s", 
+                        (result[0][2],)
+                        )
+                        sessionID = cur.fetchall()
+                        response = (str(result[0][2]) +"::"+ str(sessionID[0][0]))
+                        return response
                     else:
                         return 0
         except Error as e:
             print(e)
+
+    def authenticate(self, authToken, userID):
+        try:
+            with connect(**self._conn_args) as con:
+                with con.cursor() as cur:
+                    cur.execute(
+                        "SELECT sessionUser From Sessions where SessionID = %s",
+                        (authToken,)
+                    )
+                    result = cur.fetchall()
+                    if (len(result) < 1):
+                        print("75")
+                        return -1
+                    if (str(result[0][0]) != str(userID)):
+                        return -1
+                    else:
+                        return 1
+        except Error as e:
+            print(e)
+
+    def logout(self, userID):
+        try:
+            with connect(**self._conn_args) as con:
+                with con.cursor() as cur:
+                    cur.execute(
+                        "Delete from sessions where sessionUser = %s",(userID,)
+                    )
+                    con.commit()
+        except Error as e:
+            print(e)
+
 
     def search(self, title, yor, media_type):
         # Fixed: was building raw SQL string — now uses parameterised queries
@@ -56,19 +98,22 @@ class DBHandler:
         params = []
 
         if title:
-            conditions.append("name = %s")
+            conditions.append("title = %s")
             params.append(title)
         if yor:
-            conditions.append("Year_of_Release = %s")
+            conditions.append("yor = %s")
             params.append(yor)
-        if media_type:
-            conditions.append("Type_of_Media = %s")
-            params.append(media_type)
 
         if not conditions:
             return -1
 
-        query = "SELECT Page FROM Media WHERE " + " AND ".join(conditions)
+
+#Modified to search appropriate databases, and prevent breaking when only one condition is input.
+        if(len(conditions) > 1):
+             searchConditions = " AND ".join(conditions)
+        else:
+            searchConditions = (conditions[0])
+        query = ("SELECT mediaID FROM %s WHERE ",media_type) + searchConditions
 
         try:
             with connect(**self._conn_args) as con:

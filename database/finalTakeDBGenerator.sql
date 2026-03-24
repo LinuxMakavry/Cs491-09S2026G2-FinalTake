@@ -1,5 +1,9 @@
-drop database FinalTake;
 
+
+/*Uncomment line 3 if you want to reset the database.
+
+drop database FinalTake;
+*/
 create database FinalTake;
 use FinalTake;
 
@@ -16,6 +20,13 @@ create table Users(
     
     Primary key(USERID)
 	);
+
+create table Sessions(
+	SessionID int not null auto_increment,
+    SessionUser int not null,
+    Primary Key (SessionID),
+    Foreign key (SessionUser) references Users(UserID)
+    );
 
 create table Movies(
 	movieID int not null auto_increment,
