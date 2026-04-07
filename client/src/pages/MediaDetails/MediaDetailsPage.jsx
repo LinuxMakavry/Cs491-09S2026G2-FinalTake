@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import '../../styles/MediaDetailsPage.css';
 
 const MediaDetailsPage = () => {
@@ -9,6 +9,9 @@ const MediaDetailsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const authHeaders = user ? { 'X-User-Id': String(user.id) } : {};
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -31,9 +34,45 @@ const MediaDetailsPage = () => {
     fetchDetails();
   }, [type, id]);
 
-  const handleFavoriteToggle = () => {
-    setIsFavorite(!isFavorite);
-  };
+  // Check favorite status once media is loaded
+  useEffect(() => {
+    if (!user || !id || !type) return;
+    fetch(`/api/favorites/check/${type}/${id}`, { headers: authHeaders })
+      .then(r => r.json())
+      .then(data => setIsFavorite(data.is_favorite))
+      .catch(() => {});
+  }, [id, type]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleFavoriteToggle = useCallback(async () => {
+    if (!user) { navigate('/login'); return; }
+    setFavoriteLoading(true);
+    try {
+      if (isFavorite) {
+        await fetch(`/api/favorites/${type}/${id}`, {
+          method: 'DELETE',
+          headers: authHeaders,
+        });
+        setIsFavorite(false);
+      } else {
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
+          body: JSON.stringify({
+            media_id: id,
+            media_type: type,
+            title: media?.title || '',
+            image_url: media?.imageUrl || null,
+            rating: media?.rating || null,
+          }),
+        });
+        setIsFavorite(true);
+      }
+    } catch {
+      // silently ignore network errors
+    } finally {
+      setFavoriteLoading(false);
+    }
+  }, [isFavorite, id, type, media, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const renderStars = (rating) => {
     const stars = [];
@@ -130,9 +169,10 @@ const MediaDetailsPage = () => {
             <button
               className={`favorite-button ${isFavorite ? 'favorited' : ''}`}
               onClick={handleFavoriteToggle}
+              disabled={favoriteLoading}
             >
               <span className="heart-icon">{isFavorite ? '❤️' : '🤍'}</span>
-              {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+              {favoriteLoading ? 'Saving...' : isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
             </button>
           </div>
         </div>
