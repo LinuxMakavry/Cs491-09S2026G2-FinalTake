@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../../context/ThemeContext';
 import '../../styles/ProfilePage.css';
@@ -10,6 +10,8 @@ const ProfilePage = () => {
     const stored = localStorage.getItem('user');
     return stored ? JSON.parse(stored) : null;
   });
+  const [favorites, setFavorites] = useState([]);
+  const [favLoading, setFavLoading] = useState(true);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -24,6 +26,15 @@ const ProfilePage = () => {
     navigate('/login');
     return null;
   }
+
+  // Fetch favorites for this user
+  useEffect(() => {
+    fetch('/api/favorites', { headers: { 'X-User-Id': String(user.id) } })
+      .then(r => r.json())
+      .then(data => setFavorites(data.favorites || []))
+      .catch(() => setFavorites([]))
+      .finally(() => setFavLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const memberSince = user.created_at
     ? new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
@@ -74,7 +85,7 @@ const ProfilePage = () => {
         {/* Stats Row */}
         <div className="profile-stats">
           <div className="stat-card">
-            <span className="stat-number">0</span>
+            <span className="stat-number">{favorites.length}</span>
             <span className="stat-label">Favorites</span>
           </div>
           <div className="stat-card">
@@ -90,12 +101,37 @@ const ProfilePage = () => {
         {/* Favorites Section */}
         <section className="profile-section">
           <h3 className="section-title">❤ Favorites</h3>
-          <div className="section-empty">
-            <p>No favorites yet.</p>
-            <button className="btn btn-primary" onClick={handleHomeClick}>
-              Browse Media
-            </button>
-          </div>
+          {favLoading ? (
+            <p className="section-loading">Loading...</p>
+          ) : favorites.length === 0 ? (
+            <div className="section-empty">
+              <p>No favorites yet.</p>
+              <button className="btn btn-primary" onClick={handleHomeClick}>
+                Browse Media
+              </button>
+            </div>
+          ) : (
+            <div className="favorites-grid">
+              {favorites.map(fav => (
+                <div
+                  key={`${fav.media_type}-${fav.media_id}`}
+                  className="fav-card"
+                  onClick={() => navigate(`/media/${fav.media_type}/${fav.media_id}`)}
+                >
+                  <div className="fav-image">
+                    {fav.image_url
+                      ? <img src={fav.image_url} alt={fav.title} />
+                      : <div className="fav-placeholder"><span>No Image</span></div>
+                    }
+                  </div>
+                  <div className="fav-info">
+                    <p className="fav-title">{fav.title}</p>
+                    <span className="fav-type">{fav.media_type}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Reviews Section */}

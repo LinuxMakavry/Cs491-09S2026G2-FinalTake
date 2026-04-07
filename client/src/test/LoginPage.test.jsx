@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import LoginPage from "../pages/Login/LoginPage";
+import { ThemeProvider } from "../context/ThemeContext";
 
 const mockNavigate = vi.fn();
 
@@ -12,6 +13,8 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+const renderWithTheme = (ui) => render(<ThemeProvider>{ui}</ThemeProvider>);
+
 describe("LoginPage", () => {
   beforeEach(() => {
     mockNavigate.mockClear();
@@ -20,7 +23,7 @@ describe("LoginPage", () => {
   });
 
   it("shows validation error if email or password missing", () => {
-    render(<LoginPage />);
+    renderWithTheme(<LoginPage />);
     fireEvent.click(screen.getByRole("button", { name: "Login" }));
     expect(
       screen.getByText("Please enter both email and password")
@@ -35,7 +38,7 @@ describe("LoginPage", () => {
       })
     }));
 
-    render(<LoginPage />);
+    renderWithTheme(<LoginPage />);
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "test@test.com" },
     });
@@ -58,7 +61,7 @@ describe("LoginPage", () => {
       json: async () => ({ error: "Invalid email or password" })
     }));
 
-    render(<LoginPage />);
+    renderWithTheme(<LoginPage />);
 
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "wrong@test.com" }
