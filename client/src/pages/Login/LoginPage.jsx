@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ThemeContext } from '../../context/ThemeContext';
 import '../../styles/LoginPage.css';
 
 const LoginPage = () => {
@@ -11,6 +12,7 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -91,6 +93,15 @@ const LoginPage = () => {
           </h1>
           <p className="site-tagline">Share Your Entertainment Experience</p>
         </button>
+        <div className="header-actions">
+          <button
+            className="btn btn-theme"
+            onClick={toggleTheme}
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          >
+            {theme === 'light' ? '☽' : '☀'}
+          </button>
+        </div>
       </header>
 
       <div className="login-container">
