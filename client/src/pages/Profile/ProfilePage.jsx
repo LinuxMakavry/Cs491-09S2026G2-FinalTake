@@ -13,6 +13,16 @@ const ProfilePage = () => {
   const [favorites, setFavorites] = useState([]);
   const [favLoading, setFavLoading] = useState(true);
 
+  // Fetch favorites for this user (must be before any early return)
+  useEffect(() => {
+    if (!user) return;
+    fetch('/api/favorites', { headers: { 'X-User-Id': String(user.id) } })
+      .then(r => r.json())
+      .then(data => setFavorites(data.favorites || []))
+      .catch(() => setFavorites([]))
+      .finally(() => setFavLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleLogout = () => {
     localStorage.removeItem('user');
     navigate('/login');
@@ -26,15 +36,6 @@ const ProfilePage = () => {
     navigate('/login');
     return null;
   }
-
-  // Fetch favorites for this user
-  useEffect(() => {
-    fetch('/api/favorites', { headers: { 'X-User-Id': String(user.id) } })
-      .then(r => r.json())
-      .then(data => setFavorites(data.favorites || []))
-      .catch(() => setFavorites([]))
-      .finally(() => setFavLoading(false));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const memberSince = user.created_at
     ? new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
