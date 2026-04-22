@@ -61,10 +61,10 @@ jobs:
             echo "No Python files found; skipping ruff."
           fi
 
-      - name: Test
+            - name: Test
         run: |
           if [ -d app/tests ]; then
-            PYTHONPATH=. pytest app/tests/ -q --junitxml=test-results.xml
+            PYTHONPATH=. pytest app/tests/ -q --junitxml=test-results.xml --cov=app --cov-report=term-missing
           else
             echo "No tests found; skipping pytest."
           fi
