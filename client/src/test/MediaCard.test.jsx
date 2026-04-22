@@ -43,7 +43,7 @@ describe("MediaCard", () => {
     expect(screen.getByText("No Image")).toBeInTheDocument();
   });
 
-  it("navigates to /media/:id when clicked", () => {
+  it("navigates to /media/:type/:id when clicked", () => {
     const { container } = render(
       <MediaCard
         id={42}
@@ -59,7 +59,7 @@ describe("MediaCard", () => {
     expect(card).toBeTruthy();
 
     fireEvent.click(card);
-    expect(mockNavigate).toHaveBeenCalledWith("/media/42");
+    expect(mockNavigate).toHaveBeenCalledWith("/media/movie/42");
   });
 });
 
