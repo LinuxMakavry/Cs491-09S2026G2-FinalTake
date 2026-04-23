@@ -28,6 +28,9 @@ def create_app(test_config=None):
     from .routes.favorites import favorites_bp
     app.register_blueprint(favorites_bp)
 
+    from .routes.reviews import reviews_bp
+    app.register_blueprint(reviews_bp)
+
     # Create database tables
     with app.app_context():
         db.create_all()
