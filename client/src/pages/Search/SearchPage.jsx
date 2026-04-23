@@ -202,6 +202,9 @@ const SearchPage = () => {
             {user ? (
               <>
                 <span className="user-email">{user.email}</span>
+                <button className="btn btn-secondary" onClick={() => navigate('/profile')}>
+                  Profile
+                </button>
                 <button className="btn btn-secondary" onClick={handleLogout}>
                   Logout
                 </button>

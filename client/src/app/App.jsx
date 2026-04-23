@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import SearchPage from '../pages/Search/SearchPage';
 import MediaDetailsPage from '../pages/MediaDetails/MediaDetailsPage';
 import LoginPage from '../pages/Login/LoginPage';
+import ProfilePage from '../pages/Profile/ProfilePage';
 import { ThemeProvider } from '../context/ThemeContext';
 import '../styles/App.css';
 
@@ -27,6 +28,9 @@ function App() {
             
             {/* Media details page - protected */}
             <Route path="/media/:type/:id" element={<PrivateRoute><MediaDetailsPage /></PrivateRoute>} />
+
+            {/* Profile page - protected */}
+            <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
             
             {/* Catch-all route */}
             <Route path="*" element={<Navigate to="/search" replace />} />

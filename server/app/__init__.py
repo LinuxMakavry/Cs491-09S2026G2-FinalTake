@@ -25,6 +25,9 @@ def create_app(test_config=None):
     from .routes.auth import auth_bp
     app.register_blueprint(auth_bp)
 
+    from .routes.favorites import favorites_bp
+    app.register_blueprint(favorites_bp)
+
     # Create database tables
     with app.app_context():
         db.create_all()
