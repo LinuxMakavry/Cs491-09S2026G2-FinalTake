@@ -1,9 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import LoginPage from "../pages/Login/LoginPage";
-import { ThemeProvider } from "../context/ThemeContext";
+import { ThemeContext } from "../context/ThemeContext";
 
 const mockNavigate = vi.fn();
+const mockTheme = { theme: 'light', toggleTheme: vi.fn() };
+const renderWithTheme = (ui) =>
+  render(<ThemeContext.Provider value={mockTheme}>{ui}</ThemeContext.Provider>);
 
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
@@ -12,8 +15,6 @@ vi.mock("react-router-dom", async () => {
     useNavigate: () => mockNavigate,
   };
 });
-
-const renderWithTheme = (ui) => render(<ThemeProvider>{ui}</ThemeProvider>);
 
 describe("LoginPage", () => {
   beforeEach(() => {
