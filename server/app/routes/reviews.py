@@ -11,7 +11,7 @@ def _get_user(request):
     user_id = request.headers.get('X-User-Id')
     if not user_id:
         return None, jsonify({'error': 'Authentication required'}), 401
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return None, jsonify({'error': 'User not found'}), 404
     return user, None, None
@@ -119,7 +119,7 @@ def delete_review(review_id):
     if err_response:
         return err_response, status
 
-    review = Review.query.get(review_id)
+    review = db.session.get(Review, review_id)
     if not review:
         return jsonify({'error': 'Review not found'}), 404
     if review.user_id != user.id:

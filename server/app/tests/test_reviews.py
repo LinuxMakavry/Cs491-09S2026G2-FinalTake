@@ -166,6 +166,25 @@ class TestDeleteReview:
         res = client.delete("/api/reviews/99999", headers={"X-User-Id": str(user.id)})
         assert res.status_code == 404
 
+    def test_other_user_cannot_delete_review(self, client, app, user):
+        """TC-RE-11 (Bug #3): user B must not be able to delete user A's review — expect 403."""
+        with app.app_context():
+            other = User(username="attacker", email="attacker@test.com")
+            other.set_password("pass")
+            _db.session.add(other)
+            _db.session.commit()
+            other = User.query.filter_by(email="attacker@test.com").first()
+            other_id = other.id
+
+        create_res = _post_review(client, user.id, media_id="60")
+        review_id = create_res.get_json()["review"]["id"]
+
+        del_res = client.delete(
+            f"/api/reviews/{review_id}",
+            headers={"X-User-Id": str(other_id)},
+        )
+        assert del_res.status_code == 403
+
 
 # ── TC-RE-04: Upsert — second POST updates existing review ──────────────────
 
