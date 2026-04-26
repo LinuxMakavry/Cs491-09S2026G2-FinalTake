@@ -6,19 +6,30 @@ import { defineConfig } from "eslint/config";
 
 export default defineConfig([
   {
+    ignores: ["dist/**", "node_modules/**"],
+  },
+  {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     plugins: { js },
     extends: ["js/recommended"],
     languageOptions: {
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+      },
+    },
+  },
+  {
+    files: ["src/test/**/*.{js,jsx,ts,tsx}"],
+    languageOptions: {
+      globals: {
+        global: "writable",
+      },
     },
   },
 
   tseslint.configs.recommended,
-
   pluginReact.configs.flat.recommended,
 
-  // ⭐ ADD THIS BLOCK (this is the important fix)
   {
     settings: {
       react: { version: "detect" },

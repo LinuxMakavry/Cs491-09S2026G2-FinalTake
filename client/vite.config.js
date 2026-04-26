@@ -1,21 +1,32 @@
-/// <reference types="vitest" />
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react'
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
     globals: true,
-    setupFiles: './src/test/setup.js',
-  },
+    setupFiles: ["./src/test/setupTests.js"],
+    css : false,
+},
   server: {
     port: 5173,
     proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
+  '/api': {
+    target: 'http://localhost:5000',
+    changeOrigin: true,
+  },
+  '/auth': {
+    target: 'http://localhost:5000',
+    changeOrigin: true,
       }
     }
   }
 })
+
+/*
+SOURCES / TEMPLATES USED:
+- Vitest docs: `defineConfig`, `test.environment = jsdom`, `setupFiles`
+- Vite React plugin docs: include `@vitejs/plugin-react` in config for JSX handling in tests
+*/

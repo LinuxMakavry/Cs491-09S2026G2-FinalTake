@@ -22,6 +22,14 @@ venv/
 .mypy_cache/
 
 ##################################
+# Database
+##################################
+*.db
+*.sqlite
+*.sqlite3
+finaltake.db
+
+##################################
 # Environment Variables
 ##################################
 .env
@@ -60,3 +68,4 @@ docker-data/
 # om using Node,gitignore and Pyth
 # on.gitignore
 ##################################
+server/finaltake.db
