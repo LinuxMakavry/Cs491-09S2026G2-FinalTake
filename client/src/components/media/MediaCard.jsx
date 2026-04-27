@@ -5,8 +5,11 @@ const MediaCard = ({ id, title, type, rating, imageUrl }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/media/${id}`);
+    navigate(`/media/${type}/${id}`);
   };
+
+  // Guard against undefined/null rating from API responses (e.g. books with no ratings)
+  const safeRating = rating ?? 0;
 
   // Function to render stars based on rating
   const renderStars = (rating) => {
@@ -45,8 +48,8 @@ const MediaCard = ({ id, title, type, rating, imageUrl }) => {
         <h3 className="media-title">{title}</h3>
         <span className="media-type">{type}</span>
         <div className="media-rating">
-          {renderStars(rating)}
-          <span className="rating-value">{rating.toFixed(1)}</span>
+          {renderStars(safeRating)}
+          <span className="rating-value">{safeRating.toFixed(1)}</span>
         </div>
       </div>
     </div>

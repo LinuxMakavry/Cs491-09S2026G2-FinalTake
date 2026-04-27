@@ -1,122 +1,163 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import '../../styles/MediaDetailsPage.css';
 
-const mockMediaDetails = {
-  1: {
-    id: 1,
-    title: "The Matrix",
-    type: "movie",
-    rating: 4.5,
-    releaseYear: 1999,
-    director: "The Wachowskis",
-    description: "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
-    genre: ["Sci-Fi", "Action"],
-    imageUrl: null
-  },
-  2: {
-    id: 2,
-    title: "Dune",
-    type: "book",
-    rating: 4.8,
-    releaseYear: 1965,
-    author: "Frank Herbert",
-    description: "Set in the distant future amidst a feudal interstellar society, Dune tells the story of young Paul Atreides.",
-    genre: ["Sci-Fi", "Fantasy"],
-    imageUrl: null
-  },
-  3: {
-    id: 3,
-    title: "The Last of Us",
-    type: "game",
-    rating: 5.0,
-    releaseYear: 2013,
-    developer: "Naughty Dog",
-    description: "Joel and Ellie must survive a brutal journey across a post-pandemic United States.",
-    genre: ["Action", "Adventure", "Survival"],
-    imageUrl: null
-  },
-  4: {
-    id: 4,
-    title: "Breaking Bad",
-    type: "tv",
-    rating: 4.9,
-    releaseYear: 2008,
-    creator: "Vince Gilligan",
-    description: "A chemistry teacher turns to manufacturing methamphetamine to secure his family's future.",
-    genre: ["Crime", "Drama", "Thriller"],
-    imageUrl: null
-  },
-  
-  5: {
-    id: 5,
-    title: "Inception",
-    type: "movie",
-    rating: 4.7,
-    releaseYear: 2010,
-    director: "Christopher Nolan",
-    description: "A thief who steals corporate secrets through dream-sharing technology.",
-    genre: ["Sci-Fi", "Thriller"],
-    imageUrl: null
-  },
-  6: {
-    id: 6,
-    title: "1984",
-    type: "book",
-    rating: 4.6,
-    releaseYear: 1949,
-    author: "George Orwell",
-    description: "A dystopian novel following Winston Smith in a totalitarian society.",
-    genre: ["Dystopian", "Political Fiction"],
-    imageUrl: null
-  },
-  7: {
-    id: 7,
-    title: "God of War",
-    type: "game",
-    rating: 4.8,
-    releaseYear: 2018,
-    developer: "Santa Monica Studio",
-    description: "Kratos and Atreus journey through Norse mythology.",
-    genre: ["Action", "Adventure"],
-    imageUrl: null
-  },
-  8: {
-    id: 8,
-    title: "Stranger Things",
-    type: "tv",
-    rating: 4.5,
-    releaseYear: 2016,
-    creator: "The Duffer Brothers",
-    description: "A group must confront supernatural forces to find a missing boy.",
-    genre: ["Sci-Fi", "Horror", "Drama"],
-    imageUrl: null
-  }
-};
+const StarPicker = ({ value, onChange }) => (
+  <div className="star-picker">
+    {[1, 2, 3, 4, 5].map(n => (
+      <button
+        key={n}
+        type="button"
+        className={`star-pick ${n <= value ? 'active' : ''}`}
+        onClick={() => onChange(n)}
+        aria-label={`${n} star${n > 1 ? 's' : ''}`}
+      >
+        ★
+      </button>
+    ))}
+  </div>
+);
 
 const MediaDetailsPage = () => {
-  const { id } = useParams();
+  const { type, id } = useParams();
   const navigate = useNavigate();
+  const [media, setMedia] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [myReview, setMyReview] = useState(null);
+  const [reviewForm, setReviewForm] = useState({ rating: 0, body: '' });
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const authHeaders = user ? { 'X-User-Id': String(user.id) } : {};
 
-  const media = mockMediaDetails[id];
+  useEffect(() => {
+    const fetchDetails = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/media/${type}/${id}`);
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || `Server error ${res.status}`);
+        }
+        const data = await res.json();
+        setMedia(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDetails();
+  }, [type, id]);
 
-  if (!media) {
-    return (
-      <div className="media-details-page">
-        <div className="error-container">
-          <h2>Media Not Found</h2>
-          <p>The requested media could not be found.</p>
-          <button className="btn btn-primary" onClick={() => navigate('/search')}>
-            Back to Search
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Check favorite status once media is loaded
+  useEffect(() => {
+    if (!user || !id || !type) return;
+    fetch(`/api/favorites/check/${type}/${id}`, { headers: authHeaders })
+      .then(r => r.json())
+      .then(data => setIsFavorite(data.is_favorite))
+      .catch(() => {});
+  }, [id, type]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleFavoriteToggle = () => {
-    setIsFavorite(!isFavorite);
+  // Fetch reviews for this media item
+  useEffect(() => {
+    if (!id || !type) return;
+    setReviewsLoading(true);
+    fetch(`/api/reviews?media_type=${type}&media_id=${id}`)
+      .then(r => r.json())
+      .then(data => {
+        const all = data.reviews || [];
+        setReviews(all);
+        if (user) {
+          setMyReview(all.find(r => r.user_id === user.id) || null);
+        }
+      })
+      .catch(() => setReviews([]))
+      .finally(() => setReviewsLoading(false));
+  }, [id, type]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleFavoriteToggle = useCallback(async () => {
+    if (!user) { navigate('/login'); return; }
+    setFavoriteLoading(true);
+    try {
+      if (isFavorite) {
+        await fetch(`/api/favorites/${type}/${id}`, {
+          method: 'DELETE',
+          headers: authHeaders,
+        });
+        setIsFavorite(false);
+      } else {
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
+          body: JSON.stringify({
+            media_id: id,
+            media_type: type,
+            title: media?.title || '',
+            image_url: media?.imageUrl || null,
+            rating: media?.rating || null,
+          }),
+        });
+        setIsFavorite(true);
+      }
+    } catch {
+      // silently ignore network errors
+    } finally {
+      setFavoriteLoading(false);
+    }
+  }, [isFavorite, id, type, media, user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!user) { navigate('/login'); return; }
+    if (reviewForm.rating === 0) { setReviewError('Please select a star rating.'); return; }
+    setReviewError('');
+    setReviewSubmitting(true);
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({
+          media_id: id,
+          media_type: type,
+          title: media?.title || '',
+          image_url: media?.imageUrl || null,
+          rating: reviewForm.rating,
+          body: reviewForm.body.trim() || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setReviewError(data.error || 'Failed to submit review.'); return; }
+      const updated = data.review;
+      setMyReview(updated);
+      setReviews(prev => {
+        const filtered = prev.filter(r => r.id !== updated.id);
+        return [updated, ...filtered];
+      });
+      setReviewForm({ rating: 0, body: '' });
+    } catch {
+      setReviewError('Cannot reach server.');
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
+
+  const handleReviewDelete = async () => {
+    if (!myReview) return;
+    try {
+      await fetch(`/api/reviews/${myReview.id}`, { method: 'DELETE', headers: authHeaders });
+      setReviews(prev => prev.filter(r => r.id !== myReview.id));
+      setMyReview(null);
+      setReviewForm({ rating: 0, body: '' });
+    } catch {
+      // silently ignore
+    }
   };
 
   const renderStars = (rating) => {
@@ -141,18 +182,36 @@ const MediaDetailsPage = () => {
   };
 
   const getCreatorLabel = (type) => {
-    switch (type) {
-      case 'movie': return 'Director';
-      case 'tv': return 'Creator';
-      case 'book': return 'Author';
-      case 'game': return 'Developer';
-      default: return 'Creator';
-    }
+    return type === 'movie' ? 'Director' : 'Creator';
   };
 
   const getCreatorValue = (media) => {
-    return media.director || media.creator || media.author || media.developer || 'Unknown';
+    return media.director || media.creator || 'Unknown';
   };
+
+  if (isLoading) {
+    return (
+      <div className="media-details-page">
+        <div className="loading-container">
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !media) {
+    return (
+      <div className="media-details-page">
+        <div className="error-container">
+          <h2>Media Not Found</h2>
+          <p>{error || 'The requested media could not be found.'}</p>
+          <button className="btn btn-primary" onClick={() => navigate('/search')}>
+            Back to Search
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="media-details-page">
       <button className="back-button" onClick={() => navigate('/search')}>
@@ -196,9 +255,10 @@ const MediaDetailsPage = () => {
             <button
               className={`favorite-button ${isFavorite ? 'favorited' : ''}`}
               onClick={handleFavoriteToggle}
+              disabled={favoriteLoading}
             >
               <span className="heart-icon">{isFavorite ? '❤️' : '🤍'}</span>
-              {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+              {favoriteLoading ? 'Saving...' : isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
             </button>
           </div>
         </div>
@@ -210,12 +270,83 @@ const MediaDetailsPage = () => {
 
           <section className="reviews-section">
             <h2>Reviews</h2>
-            <div className="reviews-placeholder">
-              <p>No reviews yet. Be the first to review!</p>
-              <button className="btn btn-primary" disabled>
-                Write a Review (Coming Soon)
-              </button>
-            </div>
+
+            {/* Write / edit review form */}
+            {user && !myReview && (
+              <form className="review-form" onSubmit={handleReviewSubmit}>
+                <p className="review-form-label">Your rating</p>
+                <StarPicker
+                  value={reviewForm.rating}
+                  onChange={val => setReviewForm(f => ({ ...f, rating: val }))}
+                />
+                <textarea
+                  className="review-textarea"
+                  placeholder="Write a review (optional)..."
+                  value={reviewForm.body}
+                  onChange={e => setReviewForm(f => ({ ...f, body: e.target.value }))}
+                  maxLength={1000}
+                  rows={4}
+                />
+                {reviewError && <p className="review-error">{reviewError}</p>}
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={reviewSubmitting}
+                >
+                  {reviewSubmitting ? 'Submitting...' : 'Submit Review'}
+                </button>
+              </form>
+            )}
+
+            {/* Current user's existing review */}
+            {user && myReview && (
+              <div className="my-review-card">
+                <div className="review-header">
+                  <span className="review-author">Your review</span>
+                  <div className="review-stars">
+                    {'★'.repeat(myReview.rating)}{'☆'.repeat(5 - myReview.rating)}
+                  </div>
+                  <button
+                    className="btn btn-danger-sm"
+                    onClick={handleReviewDelete}
+                  >
+                    Delete
+                  </button>
+                </div>
+                {myReview.body && <p className="review-body">{myReview.body}</p>}
+                <span className="review-date">
+                  {new Date(myReview.created_at).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+
+            {/* All reviews */}
+            {reviewsLoading ? (
+              <p className="reviews-loading">Loading reviews...</p>
+            ) : reviews.filter(r => !user || r.user_id !== user.id).length === 0 && !myReview ? (
+              <div className="reviews-placeholder">
+                <p>No reviews yet. Be the first to review!</p>
+              </div>
+            ) : (
+              <div className="reviews-list">
+                {reviews
+                  .filter(r => !user || r.user_id !== user.id)
+                  .map(review => (
+                    <div key={review.id} className="review-card">
+                      <div className="review-header">
+                        <span className="review-author">{review.username}</span>
+                        <div className="review-stars">
+                          {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                        </div>
+                        <span className="review-date">
+                          {new Date(review.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {review.body && <p className="review-body">{review.body}</p>}
+                    </div>
+                  ))}
+              </div>
+            )}
           </section>
         </div>
       </div>
