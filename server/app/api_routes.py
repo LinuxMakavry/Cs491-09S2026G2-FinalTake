@@ -25,7 +25,7 @@ def search():
     - type: 'movie', 'tv', 'game', 'book', or 'all' (default: 'all')
     - page: page number (default: 1)
     """
-    query = request.args.get('query') or request.args.get('q')
+    query = (request.args.get('query') or request.args.get('q', '')).strip()
     media_type = request.args.get('type', 'all')
     page = request.args.get('page', 1, type=int)
     
