@@ -11,7 +11,7 @@ def _get_user(request):
     user_id = request.headers.get('X-User-Id')
     if not user_id:
         return None, jsonify({'error': 'Authentication required'}), 401
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return None, jsonify({'error': 'User not found'}), 404
     return user, None, None

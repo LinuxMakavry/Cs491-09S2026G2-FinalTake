@@ -12,6 +12,8 @@ const ProfilePage = () => {
   });
   const [favorites, setFavorites] = useState([]);
   const [favLoading, setFavLoading] = useState(true);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
 
   // Fetch favorites for this user (must be before any early return)
   useEffect(() => {
@@ -21,6 +23,16 @@ const ProfilePage = () => {
       .then(data => setFavorites(data.favorites || []))
       .catch(() => setFavorites([]))
       .finally(() => setFavLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch this user's reviews
+  useEffect(() => {
+    if (!user) return;
+    fetch('/api/reviews/mine', { headers: { 'X-User-Id': String(user.id) } })
+      .then(r => r.json())
+      .then(data => setReviews(data.reviews || []))
+      .catch(() => setReviews([]))
+      .finally(() => setReviewsLoading(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogout = () => {
@@ -90,12 +102,16 @@ const ProfilePage = () => {
             <span className="stat-label">Favorites</span>
           </div>
           <div className="stat-card">
-            <span className="stat-number">0</span>
+            <span className="stat-number">{reviews.length}</span>
             <span className="stat-label">Reviews</span>
           </div>
           <div className="stat-card">
-            <span className="stat-number">0</span>
-            <span className="stat-label">Ratings</span>
+            <span className="stat-number">
+              {reviews.length > 0
+                ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+                : '—'}
+            </span>
+            <span className="stat-label">Avg Rating</span>
           </div>
         </div>
 
@@ -138,23 +154,77 @@ const ProfilePage = () => {
         {/* Reviews Section */}
         <section className="profile-section">
           <h3 className="section-title">✏ Reviews</h3>
-          <div className="section-empty">
-            <p>No reviews yet.</p>
-            <button className="btn btn-primary" onClick={handleHomeClick}>
-              Browse Media
-            </button>
-          </div>
+          {reviewsLoading ? (
+            <p className="section-loading">Loading...</p>
+          ) : reviews.length === 0 ? (
+            <div className="section-empty">
+              <p>No reviews yet.</p>
+              <button className="btn btn-primary" onClick={handleHomeClick}>
+                Browse Media
+              </button>
+            </div>
+          ) : (
+            <div className="reviews-list">
+              {reviews.map(review => (
+                <div
+                  key={review.id}
+                  className="profile-review-card"
+                  onClick={() => navigate(`/media/${review.media_type}/${review.media_id}`)}
+                >
+                  <div className="profile-review-image">
+                    {review.image_url
+                      ? <img src={review.image_url} alt={review.title} />
+                      : <div className="fav-placeholder"><span>No Image</span></div>
+                    }
+                  </div>
+                  <div className="profile-review-info">
+                    <p className="profile-review-title">{review.title}</p>
+                    <span className="fav-type">{review.media_type}</span>
+                    <div className="profile-review-stars">
+                      {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                    </div>
+                    {review.body && (
+                      <p className="profile-review-body">{review.body}</p>
+                    )}
+                    <span className="profile-review-date">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
-        {/* Ratings Section */}
+        {/* Ratings Section — derived from reviews */}
         <section className="profile-section">
           <h3 className="section-title">★ Ratings</h3>
-          <div className="section-empty">
-            <p>No ratings yet.</p>
-            <button className="btn btn-primary" onClick={handleHomeClick}>
-              Browse Media
-            </button>
-          </div>
+          {reviewsLoading ? (
+            <p className="section-loading">Loading...</p>
+          ) : reviews.length === 0 ? (
+            <div className="section-empty">
+              <p>No ratings yet.</p>
+              <button className="btn btn-primary" onClick={handleHomeClick}>
+                Browse Media
+              </button>
+            </div>
+          ) : (
+            <div className="ratings-summary">
+              {[5, 4, 3, 2, 1].map(star => {
+                const count = reviews.filter(r => r.rating === star).length;
+                const pct = reviews.length > 0 ? Math.round((count / reviews.length) * 100) : 0;
+                return (
+                  <div key={star} className="rating-bar-row">
+                    <span className="rating-bar-label">{star}★</span>
+                    <div className="rating-bar-track">
+                      <div className="rating-bar-fill" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="rating-bar-count">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
       </div>
     </div>
